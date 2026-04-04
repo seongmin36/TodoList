@@ -16,7 +16,7 @@ export class Tag {
   @Column({ length: 50 })
   name: string;
 
-  @Column({ length: 7, nullable: true })
+  @Column({ type: 'varchar', length: 7, nullable: true })
   color: string | null;
 
   @CreateDateColumn({ type: 'timestamp' })

@@ -7,19 +7,23 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { TodoResponseDto } from './dto/todo-response.dto';
 
-@Controller('api/v1/todos')
+@Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  async create(@Body() createTodoDto: CreateTodoDto): Promise<TodoResponseDto> {
-    const todo = await this.todosService.create(createTodoDto);
+  async create(
+    @Req() req,
+    @Body() createTodoDto: CreateTodoDto,
+  ): Promise<TodoResponseDto> {
+    const todo = await this.todosService.create(req.user, createTodoDto);
     return TodoResponseDto.fromEntity(todo);
   }
 

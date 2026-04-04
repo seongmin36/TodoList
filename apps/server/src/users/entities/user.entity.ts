@@ -1,4 +1,5 @@
 import { AuthAccount } from '@/auth-accounts/entities/auth-account.entity';
+import { Todo } from '@/todos/entities/todo.entity';
 import {
   Column,
   CreateDateColumn,
@@ -17,7 +18,7 @@ export class User {
   @Column({ length: 30 })
   name: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password_hash: string | null;
 
   @Column({ type: 'text', nullable: true })
@@ -37,4 +38,7 @@ export class User {
 
   @OneToMany(() => AuthAccount, (auth) => auth.user)
   auth_accounts: AuthAccount[];
+
+  @OneToMany(() => Todo, (todo) => todo.user)
+  todos: Todo[];
 }

@@ -1,4 +1,3 @@
-// src/todos/dto/todo-response.dto.ts
 import { Todo } from '../entities/todo.entity';
 
 export class TodoResponseDto {

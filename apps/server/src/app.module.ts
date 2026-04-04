@@ -7,19 +7,11 @@ import { AuthAccountsModule } from './auth-accounts/auth-accounts.module';
 import { TodosModule } from './todos/todos.module';
 import { TagsModule } from './tags/tags.module';
 import { TodoTagsModule } from './todo-tags/todo-tags.module';
+import { typeOrmConfig } from './configs/typeorm.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'todo_db',
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(typeOrmConfig),
     UsersModule,
     AuthAccountsModule,
     TodosModule,
