@@ -18,13 +18,15 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  async create(@Body() createTodoDto: CreateTodoDto): Promise<TodoResponseDto> {
+    const todo = await this.todosService.create(createTodoDto);
+    return TodoResponseDto.fromEntity(todo);
   }
 
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  async findAll(): Promise<TodoResponseDto[]> {
+    const todos = await this.todosService.findAll();
+    return TodoResponseDto.fromEntities(todos);
   }
 
   @Get(':id')
@@ -36,12 +38,16 @@ export class TodosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todosService.update(+id, updateTodoDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTodoDto: UpdateTodoDto,
+  ): Promise<TodoResponseDto> {
+    const todo = await this.todosService.update(id, updateTodoDto);
+    return TodoResponseDto.fromEntity(todo);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todosService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.todosService.remove(id);
   }
 }

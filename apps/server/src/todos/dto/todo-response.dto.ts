@@ -21,4 +21,8 @@ export class TodoResponseDto {
 
     return dto;
   }
+
+  static fromEntities(todos: Todo[]): TodoResponseDto[] {
+    return todos.map((todo) => TodoResponseDto.fromEntity(todo));
+  }
 }

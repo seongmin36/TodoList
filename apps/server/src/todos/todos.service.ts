@@ -34,15 +34,32 @@ export class TodosService {
     return this.findTodoOrFail(id);
   }
 
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  async create(createTodoDto: CreateTodoDto): Promise<Todo> {
+    const todo = this.todosRepository.create({
+      title: createTodoDto.title,
+      description: createTodoDto.description ?? null,
+      is_completed: false,
+    });
+    return this.todosRepository.save(todo);
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<Todo> {
+    const todo = await this.findTodoOrFail(id);
+
+    if (updateTodoDto.title !== undefined) {
+      todo.title = updateTodoDto.title;
+    }
+    if (updateTodoDto.description !== undefined) {
+      todo.description = updateTodoDto.description ?? null;
+    }
+    if (updateTodoDto.isDone !== undefined) {
+      todo.is_completed = updateTodoDto.isDone;
+    }
+    return this.todosRepository.save(todo);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: number): Promise<void> {
+    await this.findTodoOrFail(id);
+    await this.todosRepository.softDelete({ todos_id: id });
   }
 }
