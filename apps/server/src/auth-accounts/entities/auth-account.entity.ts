@@ -20,7 +20,7 @@ export class AuthAccount {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   auth_accounts_id: number;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false, eager: true })
   user: User;
 
   @Column({ type: 'enum', enum: AuthProvider })
