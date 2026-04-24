@@ -29,6 +29,9 @@ export class AuthAccount {
   @Column({ length: 255 })
   provider_user_id: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password_hash: string | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 }

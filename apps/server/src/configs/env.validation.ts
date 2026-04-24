@@ -20,7 +20,7 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
-  DB_USER: string;
+  DB_USERNAME: string;
 
   @IsString()
   @IsNotEmpty()
@@ -35,7 +35,7 @@ export function validateEnv(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
-  const errors = validateSync(validatedConfig, { skipMissingProperties: true });
+  const errors = validateSync(validatedConfig);
   if (errors.length > 0) {
     throw new Error(`환경 변수 검증 실패: ${errors.toString()}`);
   }

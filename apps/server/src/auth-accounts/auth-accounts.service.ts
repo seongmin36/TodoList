@@ -39,7 +39,6 @@ export class AuthAccountsService {
 
     const user = this.userRepository.create({
       name: dto.name,
-      password_hash: passwordHash,
       profile_img: null,
       is_active: true,
     });
@@ -49,6 +48,7 @@ export class AuthAccountsService {
       user: savedUser,
       auth_provider: AuthProvider.GENERAL,
       provider_user_id: dto.email,
+      password_hash: passwordHash,
     });
     await this.authAccountRepository.save(authAccount);
 
@@ -67,17 +67,19 @@ export class AuthAccountsService {
     });
 
     const user = account?.user;
-    if (!user?.password_hash) {
+    if (!account?.password_hash || !user) {
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
 
     // 비밀번호 검증
-    const passwordOk = await bcrypt.compare(dto.password, user.password_hash);
+    const passwordOk = await bcrypt.compare(
+      dto.password,
+      account.password_hash,
+    );
     // 비밀번호가 일치하지 않으면 예외 발생
     if (!passwordOk) {
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
-
     if (!user.is_active) {
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
