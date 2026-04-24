@@ -9,9 +9,10 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 import {
-  LoginRequestDto,
   SignupRequestDto,
-} from './dto/create-auth-account.dto';
+  LoginRequestDto,
+  LoginResponseDto,
+} from './dtos/index';
 import { AuthAccount, AuthProvider } from './entities/auth-account.entity';
 
 @Injectable()
@@ -55,9 +56,7 @@ export class AuthAccountsService {
     return savedUser;
   }
 
-  async login(
-    dto: LoginRequestDto,
-  ): Promise<{ accessToken: string; tokenType: string }> {
+  async login(dto: LoginRequestDto): Promise<LoginResponseDto> {
     const account = await this.authAccountRepository.findOne({
       where: {
         auth_provider: AuthProvider.GENERAL,
@@ -87,6 +86,6 @@ export class AuthAccountsService {
     const payload = { sub: user.users_id };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    return { accessToken, tokenType: 'Bearer' };
+    return LoginResponseDto.fromEntity(accessToken);
   }
 }

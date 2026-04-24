@@ -1,10 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthAccountsService } from './auth-accounts.service';
 import {
-  LoginRequestDto,
-  SignupRequestDto,
+  LoginResponseDto,
   SignUpResponseDto,
-} from './dto/create-auth-account.dto';
+  SignupRequestDto,
+  LoginRequestDto,
+} from './dtos/index';
 import { Public } from '@/common/decorators/public.decorator';
 
 @Controller('auth')
@@ -20,7 +21,7 @@ export class AuthAccountsController {
 
   @Public()
   @Post('login')
-  login(@Body() dto: LoginRequestDto) {
+  login(@Body() dto: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authAccountsService.login(dto);
   }
 }
