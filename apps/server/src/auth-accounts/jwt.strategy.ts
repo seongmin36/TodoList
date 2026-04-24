@@ -24,11 +24,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: config.secret,
     });
   }
+
   async validate(payload: JwtPayload) {
     const user = await this.userRepository.findOne({
-      where: { users_id: payload.sub },
+      where: { id: payload.sub },
     });
-    if (!user || !user.is_active) {
+    if (!user || !user.isActive) {
       throw new UnauthorizedException();
     }
     return user;

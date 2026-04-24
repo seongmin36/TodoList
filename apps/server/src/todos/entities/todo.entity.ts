@@ -21,8 +21,8 @@ export enum RecurrenceType {
 
 @Entity({ name: 'todos' })
 export class Todo {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
-  todos_id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'todos_id' })
+  id: number;
 
   @ManyToOne(() => User, { nullable: false })
   user: User;
@@ -33,33 +33,38 @@ export class Todo {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ default: false })
-  is_completed: boolean;
+  @Column({ name: 'is_completed', default: false })
+  isCompleted: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  due_at: Date | null;
+  @Column({ name: 'due_at', type: 'timestamp', nullable: true })
+  dueAt: Date | null;
 
-  @Column({ type: 'timestamp', nullable: true })
-  completed_at: Date | null;
+  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  completedAt: Date | null;
 
-  @Column({ type: 'enum', enum: RecurrenceType, default: RecurrenceType.NONE })
-  recurrence_type: RecurrenceType;
+  @Column({
+    name: 'recurrence_type',
+    type: 'enum',
+    enum: RecurrenceType,
+    default: RecurrenceType.NONE,
+  })
+  recurrenceType: RecurrenceType;
 
-  @Column({ type: 'timestamp', nullable: true })
-  recurrence_start_at: Date | null;
+  @Column({ name: 'recurrence_start_at', type: 'timestamp', nullable: true })
+  recurrenceStartAt: Date | null;
 
-  @Column({ type: 'timestamp', nullable: true })
-  recurrence_end_at: Date | null;
+  @Column({ name: 'recurrence_end_at', type: 'timestamp', nullable: true })
+  recurrenceEndAt: Date | null;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date | null;
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => TodoTag, (todoTag) => todoTag.todo)
-  todo_tags: TodoTag[];
+  todoTags: TodoTag[];
 }

@@ -18,11 +18,11 @@ export class User {
   @Column({ length: 30 })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
-  profile_img: string | null;
+  @Column({ name: 'profile_img', type: 'text', nullable: true })
+  profileImage: string | null;
 
-  @Column({ default: false })
-  is_active: boolean;
+  @Column({ name: 'is_active', default: false })
+  isActive: boolean;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;

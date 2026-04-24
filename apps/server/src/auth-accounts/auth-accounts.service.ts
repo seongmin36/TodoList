@@ -28,8 +28,8 @@ export class AuthAccountsService {
   async signUp(dto: SignupRequestDto): Promise<User> {
     const existing = await this.authAccountRepository.findOne({
       where: {
-        auth_provider: AuthProvider.GENERAL,
-        provider_user_id: dto.email,
+        authProvider: AuthProvider.GENERAL,
+        providerUserId: dto.email,
       },
     });
     if (existing) {
@@ -40,16 +40,16 @@ export class AuthAccountsService {
 
     const user = this.userRepository.create({
       name: dto.name,
-      profile_img: null,
-      is_active: true,
+      profileImg: null,
+      isActive: true,
     });
     const savedUser = await this.userRepository.save(user);
 
     const authAccount = this.authAccountRepository.create({
       user: savedUser,
-      auth_provider: AuthProvider.GENERAL,
-      provider_user_id: dto.email,
-      password_hash: passwordHash,
+      authProvider: AuthProvider.GENERAL,
+      providerUserId: dto.email,
+      passwordHash,
     });
     await this.authAccountRepository.save(authAccount);
 
@@ -59,31 +59,26 @@ export class AuthAccountsService {
   async login(dto: LoginRequestDto): Promise<LoginResponseDto> {
     const account = await this.authAccountRepository.findOne({
       where: {
-        auth_provider: AuthProvider.GENERAL,
-        provider_user_id: dto.email,
+        authProvider: AuthProvider.GENERAL,
+        providerUserId: dto.email,
       },
       relations: ['user'],
     });
 
     const user = account?.user;
-    if (!account?.password_hash || !user) {
+    if (!account?.passwordHash || !user) {
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
 
-    // 비밀번호 검증
-    const passwordOk = await bcrypt.compare(
-      dto.password,
-      account.password_hash,
-    );
-    // 비밀번호가 일치하지 않으면 예외 발생
+    const passwordOk = await bcrypt.compare(dto.password, account.passwordHash);
     if (!passwordOk) {
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
-    if (!user.is_active) {
+    if (!user.isActive) {
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
 
-    const payload = { sub: user.users_id };
+    const payload = { sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return LoginResponseDto.fromEntity(accessToken);

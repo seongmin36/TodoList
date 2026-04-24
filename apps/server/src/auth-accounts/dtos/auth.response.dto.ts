@@ -1,12 +1,12 @@
 import { User } from '@/users/entities/user.entity';
 
 export class SignUpResponseDto {
-  users_id: number;
+  id: number;
   name: string;
 
   static fromEntity(user: User): SignUpResponseDto {
     const dto = new SignUpResponseDto();
-    dto.users_id = user.users_id;
+    dto.id = user.id;
     dto.name = user.name;
     return dto;
   }

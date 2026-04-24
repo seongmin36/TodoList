@@ -11,27 +11,27 @@ import { User } from '@/users/entities/user.entity';
 export enum AuthProvider {
   GOOGLE = 'google',
   GENERAL = 'general',
-  MIXED = 'mixed', // 통합 로그인
+  MIXED = 'mixed',
 }
 
 @Entity({ name: 'auth_accounts' })
-@Unique(['auth_provider', 'provider_user_id'])
+@Unique(['authProvider', 'providerUserId'])
 export class AuthAccount {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
-  auth_accounts_id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'auth_accounts_id' })
+  id: number;
 
   @ManyToOne(() => User, { nullable: false, eager: true })
   user: User;
 
-  @Column({ type: 'enum', enum: AuthProvider })
-  auth_provider: AuthProvider;
+  @Column({ name: 'auth_provider', type: 'enum', enum: AuthProvider })
+  authProvider: AuthProvider;
 
-  @Column({ length: 255 })
-  provider_user_id: string;
+  @Column({ name: 'provider_user_id', length: 255 })
+  providerUserId: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  password_hash: string | null;
+  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  passwordHash: string | null;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 }

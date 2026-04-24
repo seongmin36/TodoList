@@ -15,7 +15,7 @@ export class TodosService {
 
   private async findTodoOrFail(id: number): Promise<Todo> {
     const todo = await this.todosRepository.findOne({
-      where: { todos_id: id, deleted_at: IsNull() },
+      where: { id, deletedAt: IsNull() },
     });
 
     if (!todo) {
@@ -27,7 +27,7 @@ export class TodosService {
 
   async findAll(): Promise<Todo[]> {
     return this.todosRepository.find({
-      where: { deleted_at: IsNull() },
+      where: { deletedAt: IsNull() },
     });
   }
 
@@ -39,7 +39,7 @@ export class TodosService {
     const todo = this.todosRepository.create({
       title: createTodoDto.title,
       description: createTodoDto.description ?? null,
-      is_completed: false,
+      isCompleted: false,
       user,
     });
     return this.todosRepository.save(todo);
@@ -55,13 +55,13 @@ export class TodosService {
       todo.description = updateTodoDto.description ?? null;
     }
     if (updateTodoDto.isDone !== undefined) {
-      todo.is_completed = updateTodoDto.isDone;
+      todo.isCompleted = updateTodoDto.isDone;
     }
     return this.todosRepository.save(todo);
   }
 
   async remove(id: number): Promise<void> {
     await this.findTodoOrFail(id);
-    await this.todosRepository.softDelete({ todos_id: id });
+    await this.todosRepository.softDelete({ id });
   }
 }

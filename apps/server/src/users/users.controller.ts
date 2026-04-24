@@ -16,12 +16,12 @@ export class UsersController {
 
   @Patch('me')
   updateMe(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(user.users_id, updateUserDto);
+    return this.usersService.update(user.id, updateUserDto);
   }
 
   @Patch('me/password')
   updatePassword(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updatePassword(user.users_id, updateUserDto);
+    return this.usersService.updatePassword(user.id, updateUserDto);
   }
 
   @Delete('me')

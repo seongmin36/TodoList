@@ -10,8 +10,8 @@ import {
 
 @Entity({ name: 'tags' })
 export class Tag {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
-  tags_id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'tags_id' })
+  id: number;
 
   @Column({ length: 50 })
   name: string;
@@ -19,12 +19,12 @@ export class Tag {
   @Column({ type: 'varchar', length: 7, nullable: true })
   color: string | null;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
   @OneToMany(() => TodoTag, (todoTag) => todoTag.tag)
-  todo_tags: TodoTag[];
+  todoTags: TodoTag[];
 }

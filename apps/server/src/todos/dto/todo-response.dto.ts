@@ -11,12 +11,12 @@ export class TodoResponseDto {
   static fromEntity(todo: Todo): TodoResponseDto {
     const dto = new TodoResponseDto();
 
-    dto.id = todo.todos_id;
+    dto.id = todo.id;
     dto.title = todo.title;
     dto.description = todo.description;
-    dto.isDone = todo.is_completed;
-    dto.createdAt = todo.created_at;
-    dto.updatedAt = todo.updated_at;
+    dto.isDone = todo.isCompleted;
+    dto.createdAt = todo.createdAt;
+    dto.updatedAt = todo.updatedAt;
 
     return dto;
   }
