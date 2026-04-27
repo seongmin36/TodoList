@@ -9,7 +9,7 @@ export class SignupRequestDto {
   email: string;
 
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(8)
   password: string;
 }
 
@@ -20,4 +20,13 @@ export class LoginRequestDto {
 
   @IsNotEmpty()
   password: string;
+}
+
+export class ResetPasswordDto {
+  @IsNotEmpty()
+  currentPassword: string;
+
+  @IsNotEmpty()
+  @MinLength(8)
+  newPassword: string;
 }

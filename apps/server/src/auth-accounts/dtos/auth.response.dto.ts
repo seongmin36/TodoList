@@ -6,7 +6,7 @@ export class SignUpResponseDto {
 
   static fromEntity(user: User): SignUpResponseDto {
     const dto = new SignUpResponseDto();
-    dto.id = user.id;
+    dto.id = user.userId;
     dto.name = user.name;
     return dto;
   }

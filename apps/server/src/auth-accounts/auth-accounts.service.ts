@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -12,6 +14,7 @@ import {
   SignupRequestDto,
   LoginRequestDto,
   LoginResponseDto,
+  ResetPasswordDto,
 } from './dtos/index';
 import { AuthAccount, AuthProvider } from './entities/auth-account.entity';
 
@@ -40,7 +43,7 @@ export class AuthAccountsService {
 
     const user = this.userRepository.create({
       name: dto.name,
-      profileImg: null,
+      profileImage: null,
       isActive: true,
     });
     const savedUser = await this.userRepository.save(user);
@@ -78,9 +81,45 @@ export class AuthAccountsService {
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
 
-    const payload = { sub: user.id };
+    const payload = { sub: user.userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return LoginResponseDto.fromEntity(accessToken);
+  }
+
+  async resetPassword(userId: number, dto: ResetPasswordDto): Promise<void> {
+    const user = await this.authAccountRepository.findOne({
+      where: {
+        user: { userId: userId },
+        authProvider: AuthProvider.GENERAL,
+      },
+    });
+    if (!user || !user.passwordHash) {
+      throw new NotFoundException('계정 정보를 찾을 수 없습니다.');
+    }
+
+    const isMatch = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+    if (!isMatch) {
+      throw new UnauthorizedException('현재 비밀번호가 일치하지 않습니다.');
+    }
+
+    const isSameAsBefore = await bcrypt.compare(
+      dto.newPassword,
+      user.passwordHash,
+    );
+    if (isSameAsBefore) {
+      throw new BadRequestException(
+        '새 비밀번호는 이전 번호와 다르게 설정해야 합니다.',
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, salt);
+
+    user.passwordHash = hashedPassword;
+    await this.authAccountRepository.save(user);
   }
 }

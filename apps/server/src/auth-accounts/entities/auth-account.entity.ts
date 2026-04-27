@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
+import { MinLength } from 'class-validator';
 
 export enum AuthProvider {
   GOOGLE = 'google',
@@ -29,7 +30,13 @@ export class AuthAccount {
   @Column({ name: 'provider_user_id', length: 255 })
   providerUserId: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  @MinLength(8)
   passwordHash: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
