@@ -1,7 +1,14 @@
-import { Controller, Get, Body, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dtos/user.request.dto';
-import { UpdateUserDto } from './dtos/user.response.dto';
+import { UpdateProfileDto, UserProfileDto } from './dtos';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from './entities/user.entity';
 
@@ -10,22 +17,21 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  getMe(@GetUser() user: User) {
-    return user;
+  getMe(@GetUser() user: User): UserProfileDto {
+    return UserProfileDto.fromEntity(user);
   }
 
   @Patch('me')
-  updateMe(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(user.id, updateUserDto);
-  }
-
-  @Patch('me/password')
-  updatePassword(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updatePassword(user.id, updateUserDto);
+  updateProfile(
+    @GetUser() user: User,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(user.userId, updateProfileDto);
   }
 
   @Delete('me')
-  remove(@GetUser() user: User) {
-    return this.usersService.remove(user.id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@GetUser() user: User): Promise<void> {
+    await this.usersService.deleteMe(user.userId);
   }
 }

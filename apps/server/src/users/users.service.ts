@@ -1,26 +1,45 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dtos/user.request.dto';
-import { UpdateUserDto } from './dtos/user.response.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { UpdateProfileDto } from './dtos';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async findOne(
+    userId: number,
+    options: { onlyActive?: boolean } = {},
+  ): Promise<User> {
+    const where: FindOptionsWhere<User> = { userId };
+    if (options.onlyActive) where.isActive = true;
+
+    const user = await this.userRepository.findOne({
+      where,
+    });
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+    return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async updateProfile(userId: number, dto: UpdateProfileDto): Promise<User> {
+    const user = await this.findOne(userId, { onlyActive: true });
+
+    Object.assign(user, dto);
+    return await this.userRepository.save(user);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  async deleteMe(userId: number): Promise<void> {
+    const user = await this.findOne(userId, { onlyActive: true });
+    user.isActive = false;
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    await this.userRepository.save(user);
+    await this.userRepository.softRemove(user);
   }
 }

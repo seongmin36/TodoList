@@ -13,7 +13,7 @@ import {
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  users_id: number;
+  userId: number;
 
   @Column({ length: 30 })
   name: string;
@@ -21,20 +21,21 @@ export class User {
   @Column({ name: 'profile_img', type: 'text', nullable: true })
   profileImage: string | null;
 
-  @Column({ name: 'is_active', default: false })
+  // 가입 직후에는 활성상태 = true
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date | null;
+  deletedAt: Date | null;
 
   @OneToMany(() => AuthAccount, (auth) => auth.user)
-  auth_accounts: AuthAccount[];
+  authAccounts: AuthAccount[];
 
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[];
