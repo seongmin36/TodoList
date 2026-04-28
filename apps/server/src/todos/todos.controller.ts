@@ -10,9 +10,10 @@ import {
   Req,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
-import { TodoResponseDto } from './dto/todo-response.dto';
+import { CreateTodoDto, UpdateTodoDto } from './dto';
+import { TodoResponseDto } from './dto/todo.response.dto';
+import { GetUser } from '@/common/decorators/user.decorator';
+import { User } from '@/users/entities/user.entity';
 
 @Controller('todos')
 export class TodosController {
@@ -20,10 +21,10 @@ export class TodosController {
 
   @Post()
   async create(
-    @Req() req,
+    @GetUser() user: User,
     @Body() createTodoDto: CreateTodoDto,
   ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.create(req.user, createTodoDto);
+    const todo = await this.todosService.create(user, createTodoDto);
     return TodoResponseDto.fromEntity(todo);
   }
 

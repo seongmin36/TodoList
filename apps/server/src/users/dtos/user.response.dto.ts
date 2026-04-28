@@ -8,14 +8,18 @@ export class UserProfileDto {
   createdAt: Date;
   updatedAt: Date;
 
+  constructor(partial: Partial<UserProfileDto>) {
+    Object.assign(this, partial);
+  }
+
   static fromEntity(user: User): UserProfileDto {
-    const dto = new UserProfileDto();
-    dto.userId = user.userId;
-    dto.name = user.name;
-    dto.profileImage = user.profileImage;
-    dto.isActive = user.isActive;
-    dto.createdAt = user.createdAt;
-    dto.updatedAt = user.updatedAt;
-    return dto;
+    return new UserProfileDto({
+      userId: user.userId,
+      name: user.name,
+      profileImage: user.profileImage,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
   }
 }
