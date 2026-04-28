@@ -65,4 +65,13 @@ export class TodosController {
   ): Promise<void> {
     return this.todosService.remove(id, user);
   }
+
+  @Patch(':id/restore')
+  async restore(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ): Promise<TodoResponseDto> {
+    const todo = await this.todosService.restore(id, user);
+    return TodoResponseDto.fromEntity(todo);
+  }
 }

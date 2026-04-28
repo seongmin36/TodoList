@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTodoDto, UpdateTodoDto } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
@@ -12,9 +16,14 @@ export class TodosService {
     private readonly todosRepository: Repository<Todo>,
   ) {}
 
-  private async findTodoOrFail(id: number, userId: number): Promise<Todo> {
+  private async findTodoOrFail(
+    id: number,
+    userId: number,
+    options: { withDeleted?: boolean } = {},
+  ): Promise<Todo> {
     const todo = await this.todosRepository.findOne({
-      where: { id, user: { userId: userId }, deletedAt: IsNull() },
+      where: { id, user: { userId: userId } },
+      withDeleted: options.withDeleted,
     });
 
     if (!todo) {
@@ -63,5 +72,19 @@ export class TodosService {
   async remove(id: number, user: User): Promise<void> {
     await this.findTodoOrFail(id, user.userId);
     await this.todosRepository.softDelete({ id });
+  }
+
+  async restore(id: number, user: User): Promise<Todo> {
+    const todo = await this.findTodoOrFail(id, user.userId, {
+      withDeleted: true,
+    });
+    if (!todo.deletedAt) {
+      throw new BadRequestException(`이미 복원된 상태입니다.`);
+    }
+
+    await this.todosRepository.restore(id);
+
+    todo.deletedAt = null;
+    return todo;
   }
 }
