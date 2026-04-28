@@ -34,7 +34,7 @@ export class Todo {
   description: string | null;
 
   @Column({ name: 'is_completed', default: false })
-  isCompleted: boolean;
+  isDone: boolean;
 
   @Column({ name: 'due_at', type: 'timestamp', nullable: true })
   dueAt: Date | null;

@@ -17,7 +17,7 @@ export class TodoResponseDto {
       id: todo.id,
       title: todo.title,
       description: todo.description,
-      isDone: todo.isCompleted,
+      isDone: todo.isDone,
       createdAt: todo.createdAt,
       updatedAt: todo.updatedAt,
     });

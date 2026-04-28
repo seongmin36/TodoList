@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { CreateTodoDto, UpdateTodoDto } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
 import { IsNull, Repository } from 'typeorm';
@@ -13,9 +12,9 @@ export class TodosService {
     private readonly todosRepository: Repository<Todo>,
   ) {}
 
-  private async findTodoOrFail(id: number): Promise<Todo> {
+  private async findTodoOrFail(id: number, userId: number): Promise<Todo> {
     const todo = await this.todosRepository.findOne({
-      where: { id, deletedAt: IsNull() },
+      where: { id, user: { userId: userId }, deletedAt: IsNull() },
     });
 
     if (!todo) {
@@ -25,43 +24,44 @@ export class TodosService {
     return todo;
   }
 
-  async findAll(): Promise<Todo[]> {
+  async findAll(user: User): Promise<Todo[]> {
     return this.todosRepository.find({
-      where: { deletedAt: IsNull() },
+      where: { user: { userId: user.userId }, deletedAt: IsNull() },
+      order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(id: number): Promise<Todo> {
-    return this.findTodoOrFail(id);
+  async findOne(id: number, user: User): Promise<Todo> {
+    return this.findTodoOrFail(id, user.userId);
   }
 
   async create(user: User, createTodoDto: CreateTodoDto): Promise<Todo> {
     const todo = this.todosRepository.create({
       title: createTodoDto.title,
       description: createTodoDto.description ?? null,
-      isCompleted: false,
+      isDone: false,
       user,
     });
     return this.todosRepository.save(todo);
   }
 
-  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<Todo> {
-    const todo = await this.findTodoOrFail(id);
+  async update(
+    id: number,
+    updateTodoDto: UpdateTodoDto,
+    user: User,
+  ): Promise<Todo> {
+    const todo = await this.findTodoOrFail(id, user.userId);
 
-    if (updateTodoDto.title !== undefined) {
-      todo.title = updateTodoDto.title;
-    }
-    if (updateTodoDto.description !== undefined) {
-      todo.description = updateTodoDto.description ?? null;
-    }
-    if (updateTodoDto.isDone !== undefined) {
-      todo.isCompleted = updateTodoDto.isDone;
-    }
+    const { isDone, ...rest } = updateTodoDto;
+
+    Object.assign(todo, rest);
+    if (isDone !== undefined) todo.isDone = isDone;
+
     return this.todosRepository.save(todo);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.findTodoOrFail(id);
+  async remove(id: number, user: User): Promise<void> {
+    await this.findTodoOrFail(id, user.userId);
     await this.todosRepository.softDelete({ id });
   }
 }

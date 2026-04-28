@@ -7,17 +7,27 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  Req,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto, UpdateTodoDto } from './dto';
 import { TodoResponseDto } from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
+import { JwtAuthGuard } from '@/auth-accounts/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
+
+  @Get()
+  async findAll(@GetUser() user: User): Promise<TodoResponseDto[]> {
+    const todos = await this.todosService.findAll(user);
+    return TodoResponseDto.fromEntities(todos);
+  }
 
   @Post()
   async create(
@@ -28,17 +38,12 @@ export class TodosController {
     return TodoResponseDto.fromEntity(todo);
   }
 
-  @Get()
-  async findAll(): Promise<TodoResponseDto[]> {
-    const todos = await this.todosService.findAll();
-    return TodoResponseDto.fromEntities(todos);
-  }
-
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
   ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.findOne(id);
+    const todo = await this.todosService.findOne(id, user);
     return TodoResponseDto.fromEntity(todo);
   }
 
@@ -46,13 +51,18 @@ export class TodosController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTodoDto: UpdateTodoDto,
+    @GetUser() user: User,
   ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.update(id, updateTodoDto);
+    const todo = await this.todosService.update(id, updateTodoDto, user);
     return TodoResponseDto.fromEntity(todo);
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.todosService.remove(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.todosService.remove(id, user);
   }
 }
