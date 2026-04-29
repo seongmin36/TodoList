@@ -19,6 +19,11 @@ export class CreateTodoDto {
   @IsString()
   @MaxLength(500)
   description?: string;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  dueAt?: Date;
 }
 
 export class UpdateTodoDto extends PartialType(CreateTodoDto) {

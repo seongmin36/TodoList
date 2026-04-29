@@ -60,6 +60,8 @@ export class TodosService {
       where.dueAt = LessThanOrEqual(dueTo);
     }
 
+    console.log('받은 쿼리:', query);
+
     return this.todosRepository.find({
       where,
       order: { createdAt: 'DESC' },
@@ -72,8 +74,7 @@ export class TodosService {
 
   async create(user: User, createTodoDto: CreateTodoDto): Promise<Todo> {
     const todo = this.todosRepository.create({
-      title: createTodoDto.title,
-      description: createTodoDto.description ?? null,
+      ...createTodoDto,
       isDone: false,
       user,
     });
@@ -87,10 +88,14 @@ export class TodosService {
   ): Promise<Todo> {
     const todo = await this.findTodoOrFail(id, user.userId);
 
-    const { isDone, ...rest } = updateTodoDto;
+    const { isDone, dueAt, ...rest } = updateTodoDto;
 
     Object.assign(todo, rest);
-    if (isDone !== undefined) todo.isDone = isDone;
+    if (isDone !== undefined) {
+      todo.isDone = isDone;
+      todo.completedAt = isDone ? new Date() : null;
+    }
+    if (dueAt !== undefined) todo.dueAt = dueAt;
 
     return this.todosRepository.save(todo);
   }
