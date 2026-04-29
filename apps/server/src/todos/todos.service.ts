@@ -3,10 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTodoDto, UpdateTodoDto } from './dto/index';
+import { CreateTodoDto, GetTodosRequestDto, UpdateTodoDto } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
-import { IsNull, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  IsNull,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 
 @Injectable()
@@ -33,9 +40,28 @@ export class TodosService {
     return todo;
   }
 
-  async findAll(user: User): Promise<Todo[]> {
+  async findAll(user: User, query: GetTodosRequestDto): Promise<Todo[]> {
+    const { isDone, dueFrom, dueTo } = query;
+
+    const where: FindOptionsWhere<Todo> = {
+      user: { userId: user.userId },
+      deletedAt: IsNull(),
+    };
+
+    if (isDone !== undefined) {
+      where.isDone = isDone;
+    }
+
+    if (dueFrom && dueTo) {
+      where.dueAt = Between(dueFrom, dueTo);
+    } else if (dueFrom) {
+      where.dueAt = MoreThanOrEqual(dueFrom);
+    } else if (dueTo) {
+      where.dueAt = LessThanOrEqual(dueTo);
+    }
+
     return this.todosRepository.find({
-      where: { user: { userId: user.userId }, deletedAt: IsNull() },
+      where,
       order: { createdAt: 'DESC' },
     });
   }

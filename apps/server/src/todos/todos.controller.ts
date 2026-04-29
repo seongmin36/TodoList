@@ -10,9 +10,10 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTodoDto, UpdateTodoDto } from './dto';
+import { CreateTodoDto, GetTodosRequestDto, UpdateTodoDto } from './dto';
 import { TodoResponseDto } from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
@@ -24,8 +25,11 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Get()
-  async findAll(@GetUser() user: User): Promise<TodoResponseDto[]> {
-    const todos = await this.todosService.findAll(user);
+  async findAll(
+    @GetUser() user: User,
+    @Query() query: GetTodosRequestDto,
+  ): Promise<TodoResponseDto[]> {
+    const todos = await this.todosService.findAll(user, query);
     return TodoResponseDto.fromEntities(todos);
   }
 
