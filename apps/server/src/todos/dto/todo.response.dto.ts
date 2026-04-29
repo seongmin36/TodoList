@@ -5,6 +5,7 @@ export class TodoResponseDto {
   title: string;
   description: string | null;
   isDone: boolean;
+  dueAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 
@@ -18,6 +19,7 @@ export class TodoResponseDto {
       title: todo.title,
       description: todo.description,
       isDone: todo.isDone,
+      dueAt: todo.dueAt,
       createdAt: todo.createdAt,
       updatedAt: todo.updatedAt,
     });
