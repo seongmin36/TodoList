@@ -58,6 +58,14 @@ export class TodosController {
     return this.todosService.getRecurrence(id, user);
   }
 
+  @Get('recurring/today')
+  async getTodayRecurrences(
+    @GetUser() user: User,
+  ): Promise<TodoRecurrenceResponseDto[]> {
+    const todos = await this.todosService.findTodayRecurring(user);
+    return TodoRecurrenceResponseDto.fromEntities(todos);
+  }
+
   @Post()
   async create(
     @GetUser() user: User,

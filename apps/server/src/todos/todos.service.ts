@@ -85,6 +85,29 @@ export class TodosService {
     return this.findTodoOrFail(id, user.userId);
   }
 
+  async findTodayRecurring(user: User): Promise<Todo[]> {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const baseCondition = {
+      user: { userId: user.userId },
+      deletedAt: IsNull(),
+      recurrenceType: Not(RecurrenceType.NONE),
+      recurrenceStartAt: LessThanOrEqual(todayEnd),
+    };
+
+    return this.todosRepository.find({
+      where: [
+        { ...baseCondition, recurrenceEndAt: IsNull() },
+        { ...baseCondition, recurrenceEndAt: MoreThanOrEqual(todayStart) },
+      ],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async getRecurrence(
     id: number,
     user: User,
