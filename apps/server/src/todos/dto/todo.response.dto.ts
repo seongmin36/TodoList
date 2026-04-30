@@ -1,4 +1,4 @@
-import { Todo } from '../entities/todo.entity';
+import { RecurrenceType, Todo } from '../entities/todo.entity';
 
 export class TodoResponseDto {
   id: number;
@@ -27,5 +27,34 @@ export class TodoResponseDto {
 
   static fromEntities(todos: Todo[]): TodoResponseDto[] {
     return todos.map((todo) => TodoResponseDto.fromEntity(todo));
+  }
+}
+
+export class TodoRecurrenceResponseDto {
+  id: number;
+  title: string;
+  dueAt: Date | null;
+
+  recurrenceType: RecurrenceType;
+  recurrenceStartAt: Date | null;
+  recurrenceEndAt: Date | null;
+
+  constructor(partial: Partial<TodoRecurrenceResponseDto>) {
+    Object.assign(this, partial);
+  }
+
+  static fromEntity(todo: Todo): TodoRecurrenceResponseDto {
+    return new TodoRecurrenceResponseDto({
+      id: Number(todo.id),
+      title: todo.title,
+      dueAt: todo.dueAt,
+      recurrenceType: todo.recurrenceType,
+      recurrenceStartAt: todo.recurrenceStartAt,
+      recurrenceEndAt: todo.recurrenceEndAt,
+    });
+  }
+
+  static fromEntities(todos: Todo[]): TodoRecurrenceResponseDto[] {
+    return todos.map((todo) => TodoRecurrenceResponseDto.fromEntity(todo));
   }
 }

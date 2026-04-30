@@ -14,7 +14,10 @@ import {
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto, GetTodosRequestDto, UpdateTodoDto } from './dto';
-import { TodoResponseDto } from './dto/todo.response.dto';
+import {
+  TodoRecurrenceResponseDto,
+  TodoResponseDto,
+} from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
 import { JwtAuthGuard } from '@/auth-accounts/guards/jwt-auth.guard';
@@ -77,5 +80,13 @@ export class TodosController {
   ): Promise<TodoResponseDto> {
     const todo = await this.todosService.restore(id, user);
     return TodoResponseDto.fromEntity(todo);
+  }
+
+  @Get(':id/recurrence')
+  async getRecurrence(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ): Promise<TodoRecurrenceResponseDto> {
+    return this.todosService.getRecurrence(id, user);
   }
 }

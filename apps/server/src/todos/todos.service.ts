@@ -3,9 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTodoDto, GetTodosRequestDto, UpdateTodoDto } from './dto/index';
+import {
+  CreateTodoDto,
+  GetTodosRequestDto,
+  TodoRecurrenceResponseDto,
+  UpdateTodoDto,
+} from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Todo } from './entities/todo.entity';
+import { RecurrenceType, Todo } from './entities/todo.entity';
 import {
   Between,
   FindOptionsWhere,
@@ -117,5 +122,18 @@ export class TodosService {
 
     todo.deletedAt = null;
     return todo;
+  }
+
+  async getRecurrence(
+    id: number,
+    user: User,
+  ): Promise<TodoRecurrenceResponseDto> {
+    const todo = await this.findTodoOrFail(id, user.userId);
+
+    if (todo.recurrenceType === RecurrenceType.NONE) {
+      throw new BadRequestException(`Recurrence not found for todo ${id}`);
+    }
+
+    return TodoRecurrenceResponseDto.fromEntity(todo);
   }
 }
