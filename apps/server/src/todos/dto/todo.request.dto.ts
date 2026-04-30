@@ -3,11 +3,14 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
+  IsEnum,
+  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
+import { RecurrenceType } from '../entities/todo.entity';
 
 export class CreateTodoDto {
   @IsNotEmpty()
@@ -47,4 +50,18 @@ export class GetTodosRequestDto {
   @Type(() => Date)
   @IsDate()
   dueTo?: Date;
+}
+
+export class UpdateRecurrenceDto {
+  @IsOptional()
+  @IsEnum(RecurrenceType, { message: '유효한 반복 주기가 아닙니다' })
+  recurrenceType?: RecurrenceType;
+
+  @IsOptional()
+  @IsISO8601({}, { message: '유효한 시작 날짜 형식이 아닙니다.' })
+  recurrenceStartAt?: Date;
+
+  @IsOptional()
+  @IsISO8601({}, { message: '유효한 종료 날짜 형식이 아닙니다.' })
+  recurrenceEndAt?: Date;
 }

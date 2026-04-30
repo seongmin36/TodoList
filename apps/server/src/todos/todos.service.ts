@@ -7,6 +7,7 @@ import {
   CreateTodoDto,
   GetTodosRequestDto,
   TodoRecurrenceResponseDto,
+  UpdateRecurrenceDto,
   UpdateTodoDto,
 } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -77,6 +78,19 @@ export class TodosService {
     return this.findTodoOrFail(id, user.userId);
   }
 
+  async getRecurrence(
+    id: number,
+    user: User,
+  ): Promise<TodoRecurrenceResponseDto> {
+    const todo = await this.findTodoOrFail(id, user.userId);
+
+    if (todo.recurrenceType === RecurrenceType.NONE) {
+      throw new BadRequestException(`Recurrence not found for todo ${id}`);
+    }
+
+    return TodoRecurrenceResponseDto.fromEntity(todo);
+  }
+
   async create(user: User, createTodoDto: CreateTodoDto): Promise<Todo> {
     const todo = this.todosRepository.create({
       ...createTodoDto,
@@ -105,6 +119,23 @@ export class TodosService {
     return this.todosRepository.save(todo);
   }
 
+  async updateRecurrence(
+    id: number,
+    user: User,
+    dto: UpdateRecurrenceDto,
+  ): Promise<Todo> {
+    const todo = await this.findTodoOrFail(id, user.userId);
+
+    Object.assign(todo, dto);
+
+    if (dto.recurrenceType === RecurrenceType.NONE) {
+      todo.recurrenceStartAt = null;
+      todo.recurrenceEndAt = null;
+    }
+
+    return this.todosRepository.save(todo);
+  }
+
   async remove(id: number, user: User): Promise<void> {
     await this.findTodoOrFail(id, user.userId);
     await this.todosRepository.softDelete({ id });
@@ -122,18 +153,5 @@ export class TodosService {
 
     todo.deletedAt = null;
     return todo;
-  }
-
-  async getRecurrence(
-    id: number,
-    user: User,
-  ): Promise<TodoRecurrenceResponseDto> {
-    const todo = await this.findTodoOrFail(id, user.userId);
-
-    if (todo.recurrenceType === RecurrenceType.NONE) {
-      throw new BadRequestException(`Recurrence not found for todo ${id}`);
-    }
-
-    return TodoRecurrenceResponseDto.fromEntity(todo);
   }
 }

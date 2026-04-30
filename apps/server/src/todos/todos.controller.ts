@@ -13,7 +13,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTodoDto, GetTodosRequestDto, UpdateTodoDto } from './dto';
+import {
+  CreateTodoDto,
+  GetTodosRequestDto,
+  UpdateRecurrenceDto,
+  UpdateTodoDto,
+} from './dto';
 import {
   TodoRecurrenceResponseDto,
   TodoResponseDto,
@@ -36,21 +41,29 @@ export class TodosController {
     return TodoResponseDto.fromEntities(todos);
   }
 
-  @Post()
-  async create(
-    @GetUser() user: User,
-    @Body() createTodoDto: CreateTodoDto,
-  ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.create(user, createTodoDto);
-    return TodoResponseDto.fromEntity(todo);
-  }
-
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
   ): Promise<TodoResponseDto> {
     const todo = await this.todosService.findOne(id, user);
+    return TodoResponseDto.fromEntity(todo);
+  }
+
+  @Get(':id/recurrence')
+  async getRecurrence(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ): Promise<TodoRecurrenceResponseDto> {
+    return this.todosService.getRecurrence(id, user);
+  }
+
+  @Post()
+  async create(
+    @GetUser() user: User,
+    @Body() createTodoDto: CreateTodoDto,
+  ): Promise<TodoResponseDto> {
+    const todo = await this.todosService.create(user, createTodoDto);
     return TodoResponseDto.fromEntity(todo);
   }
 
@@ -64,15 +77,6 @@ export class TodosController {
     return TodoResponseDto.fromEntity(todo);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
-    @GetUser() user: User,
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
-    return this.todosService.remove(id, user);
-  }
-
   @Patch(':id/restore')
   async restore(
     @Param('id', ParseIntPipe) id: number,
@@ -82,11 +86,26 @@ export class TodosController {
     return TodoResponseDto.fromEntity(todo);
   }
 
-  @Get(':id/recurrence')
-  async getRecurrence(
+  @Patch(':id/recurrence')
+  async updateRecurrence(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
+    @Body() updateRecurrenceDto: UpdateRecurrenceDto,
   ): Promise<TodoRecurrenceResponseDto> {
-    return this.todosService.getRecurrence(id, user);
+    const updatedTodo = await this.todosService.updateRecurrence(
+      id,
+      user,
+      updateRecurrenceDto,
+    );
+    return TodoRecurrenceResponseDto.fromEntity(updatedTodo);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.todosService.remove(id, user);
   }
 }
