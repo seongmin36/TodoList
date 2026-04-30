@@ -18,6 +18,7 @@ import {
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
@@ -47,7 +48,7 @@ export class TodosService {
   }
 
   async findAll(user: User, query: GetTodosRequestDto): Promise<Todo[]> {
-    const { isDone, dueFrom, dueTo } = query;
+    const { isDone, dueFrom, dueTo, recurrenceType, onlyRecurring } = query;
 
     const where: FindOptionsWhere<Todo> = {
       user: { userId: user.userId },
@@ -64,6 +65,12 @@ export class TodosService {
       where.dueAt = MoreThanOrEqual(dueFrom);
     } else if (dueTo) {
       where.dueAt = LessThanOrEqual(dueTo);
+    }
+
+    if (recurrenceType) {
+      where.recurrenceType = recurrenceType;
+    } else if (onlyRecurring === true) {
+      where.recurrenceType = Not(RecurrenceType.NONE);
     }
 
     console.log('받은 쿼리:', query);

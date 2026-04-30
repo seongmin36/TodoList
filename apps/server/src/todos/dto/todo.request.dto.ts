@@ -50,6 +50,15 @@ export class GetTodosRequestDto {
   @Type(() => Date)
   @IsDate()
   dueTo?: Date;
+
+  @IsOptional()
+  @IsEnum(RecurrenceType)
+  recurrenceType?: RecurrenceType;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  onlyRecurring?: boolean;
 }
 
 export class UpdateRecurrenceDto {
