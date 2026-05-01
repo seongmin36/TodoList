@@ -1,3 +1,4 @@
+import { TagResponseDto } from '@/tags/dto';
 import { RecurrenceType, Todo } from '../entities/todo.entity';
 
 export class TodoResponseDto {
@@ -15,7 +16,7 @@ export class TodoResponseDto {
 
   static fromEntity(todo: Todo): TodoResponseDto {
     return new TodoResponseDto({
-      id: todo.id,
+      id: Number(todo.id),
       title: todo.title,
       description: todo.description,
       isDone: todo.isDone,
@@ -56,5 +57,26 @@ export class TodoRecurrenceResponseDto {
 
   static fromEntities(todos: Todo[]): TodoRecurrenceResponseDto[] {
     return todos.map((todo) => TodoRecurrenceResponseDto.fromEntity(todo));
+  }
+}
+
+export class TodoWithTagsResponseDto extends TodoResponseDto {
+  tags: TagResponseDto[];
+
+  constructor(partial: Partial<TodoWithTagsResponseDto>) {
+    super(partial);
+  }
+
+  static fromEntity(todo: Todo): TodoWithTagsResponseDto {
+    return new TodoWithTagsResponseDto({
+      id: Number(todo.id),
+      title: todo.title,
+      description: todo.description,
+      isDone: todo.isDone,
+      dueAt: todo.dueAt,
+      tags: todo.tags ? TagResponseDto.fromEntities(todo.tags) : [],
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
+    });
   }
 }

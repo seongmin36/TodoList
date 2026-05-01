@@ -18,10 +18,12 @@ import {
   GetTodosRequestDto,
   UpdateRecurrenceDto,
   UpdateTodoDto,
+  UpdateTodoTagsDto,
 } from './dto';
 import {
   TodoRecurrenceResponseDto,
   TodoResponseDto,
+  TodoWithTagsResponseDto,
 } from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
@@ -36,18 +38,18 @@ export class TodosController {
   async findAll(
     @GetUser() user: User,
     @Query() query: GetTodosRequestDto,
-  ): Promise<TodoResponseDto[]> {
+  ): Promise<TodoWithTagsResponseDto[]> {
     const todos = await this.todosService.findAll(user, query);
-    return TodoResponseDto.fromEntities(todos);
+    return todos.map((todo) => TodoWithTagsResponseDto.fromEntity(todo));
   }
 
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
-  ): Promise<TodoResponseDto> {
+  ): Promise<TodoWithTagsResponseDto> {
     const todo = await this.todosService.findOne(id, user);
-    return TodoResponseDto.fromEntity(todo);
+    return TodoWithTagsResponseDto.fromEntity(todo);
   }
 
   @Get(':id/recurrence')
@@ -106,6 +108,20 @@ export class TodosController {
       updateRecurrenceDto,
     );
     return TodoRecurrenceResponseDto.fromEntity(updatedTodo);
+  }
+
+  @Patch(':id/tags')
+  async updateTags(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+    @Body() updateTodoTagsDto: UpdateTodoTagsDto,
+  ): Promise<TodoWithTagsResponseDto> {
+    const updatedTodo = await this.todosService.updateTags(
+      id,
+      user,
+      updateTodoTagsDto,
+    );
+    return TodoWithTagsResponseDto.fromEntity(updatedTodo);
   }
 
   @Delete(':id')

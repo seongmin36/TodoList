@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,12 +10,14 @@ import {
   TodoRecurrenceResponseDto,
   UpdateRecurrenceDto,
   UpdateTodoDto,
+  UpdateTodoTagsDto,
 } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecurrenceType, Todo } from './entities/todo.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -22,12 +25,15 @@ import {
   Repository,
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
+import { Tag } from '@/tags/entities/tag.entity';
 
 @Injectable()
 export class TodosService {
   constructor(
     @InjectRepository(Todo)
     private readonly todosRepository: Repository<Todo>,
+    @InjectRepository(Tag)
+    private readonly tagsRepository: Repository<Tag>,
   ) {}
 
   private async findTodoOrFail(
@@ -37,6 +43,7 @@ export class TodosService {
   ): Promise<Todo> {
     const todo = await this.todosRepository.findOne({
       where: { id, user: { userId: userId } },
+      relations: ['tags'],
       withDeleted: options.withDeleted,
     });
 
@@ -77,6 +84,7 @@ export class TodosService {
 
     return this.todosRepository.find({
       where,
+      relations: ['tags'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -163,6 +171,35 @@ export class TodosService {
       todo.recurrenceEndAt = null;
     }
 
+    return this.todosRepository.save(todo);
+  }
+
+  async updateTags(
+    id: number,
+    user: User,
+    dto: UpdateTodoTagsDto,
+  ): Promise<Todo> {
+    const { tagIds } = dto;
+
+    const todo = await this.findTodoOrFail(id, user.userId);
+
+    let tags: Tag[] = [];
+    if (tagIds.length > 0) {
+      tags = await this.tagsRepository.find({
+        where: {
+          id: In(tagIds),
+          user: { userId: user.userId },
+        },
+      });
+    }
+
+    if (tags.length !== tagIds.length) {
+      throw new ForbiddenException(
+        `존재하지 않는 태그 ID가 포함되어 있습니다.`,
+      );
+    }
+
+    todo.tags = tags;
     return this.todosRepository.save(todo);
   }
 

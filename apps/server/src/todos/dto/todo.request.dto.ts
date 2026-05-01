@@ -1,9 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsEnum,
+  IsInt,
   IsISO8601,
   IsNotEmpty,
   IsOptional,
@@ -73,4 +75,10 @@ export class UpdateRecurrenceDto {
   @IsOptional()
   @IsISO8601({}, { message: '유효한 종료 날짜 형식이 아닙니다.' })
   recurrenceEndAt?: Date;
+}
+
+export class UpdateTodoTagsDto {
+  @IsArray()
+  @IsInt({ each: true })
+  tagIds: number[];
 }

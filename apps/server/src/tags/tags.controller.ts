@@ -17,7 +17,6 @@ export class TagsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(
     @GetUser() user: User,
     @Body() createTagDto: CreateTagDto,
