@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './entities/tag.entity';
 import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
+import { CreateTagDto } from './dto';
 
 @Injectable()
 export class TagsService {
@@ -16,6 +17,14 @@ export class TagsService {
       where: { user: { userId: user.userId } },
       order: { createdAt: 'ASC' },
     });
+  }
+
+  async createTag(user: User, createTagDto: CreateTagDto): Promise<Tag> {
+    const tag = this.tagRepository.create({
+      ...createTagDto,
+      user: { userId: user.userId },
+    });
+    return await this.tagRepository.save(tag);
   }
 
   findOne(id: number) {
