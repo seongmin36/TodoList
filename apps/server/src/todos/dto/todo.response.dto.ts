@@ -7,6 +7,7 @@ export class TodoResponseDto {
   description: string | null;
   isDone: boolean;
   dueAt: Date | null;
+  tags: TagResponseDto[];
   createdAt: Date;
   updatedAt: Date;
 
@@ -21,6 +22,7 @@ export class TodoResponseDto {
       description: todo.description,
       isDone: todo.isDone,
       dueAt: todo.dueAt,
+      tags: todo.tags ? TagResponseDto.fromEntities(todo.tags) : [],
       createdAt: todo.createdAt,
       updatedAt: todo.updatedAt,
     });
@@ -35,7 +37,6 @@ export class TodoRecurrenceResponseDto {
   id: number;
   title: string;
   dueAt: Date | null;
-
   recurrenceType: RecurrenceType;
   recurrenceStartAt: Date | null;
   recurrenceEndAt: Date | null;
@@ -57,26 +58,5 @@ export class TodoRecurrenceResponseDto {
 
   static fromEntities(todos: Todo[]): TodoRecurrenceResponseDto[] {
     return todos.map((todo) => TodoRecurrenceResponseDto.fromEntity(todo));
-  }
-}
-
-export class TodoWithTagsResponseDto extends TodoResponseDto {
-  tags: TagResponseDto[];
-
-  constructor(partial: Partial<TodoWithTagsResponseDto>) {
-    super(partial);
-  }
-
-  static fromEntity(todo: Todo): TodoWithTagsResponseDto {
-    return new TodoWithTagsResponseDto({
-      id: Number(todo.id),
-      title: todo.title,
-      description: todo.description,
-      isDone: todo.isDone,
-      dueAt: todo.dueAt,
-      tags: todo.tags ? TagResponseDto.fromEntities(todo.tags) : [],
-      createdAt: todo.createdAt,
-      updatedAt: todo.updatedAt,
-    });
   }
 }
