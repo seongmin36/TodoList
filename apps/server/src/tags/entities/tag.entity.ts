@@ -1,9 +1,12 @@
-import { TodoTag } from '@/todo-tags/entities/todo-tag.entity';
+import { User } from '@/users/entities/user.entity';
+import { Todo } from '@/todos/entities/todo.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,6 +15,10 @@ import {
 export class Tag {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'tags_id' })
   id: number;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ length: 50 })
   name: string;
@@ -25,6 +32,6 @@ export class Tag {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => TodoTag, (todoTag) => todoTag.tag)
-  todoTags: TodoTag[];
+  @ManyToMany(() => Todo, (todo) => todo.tags)
+  todos: Todo[];
 }

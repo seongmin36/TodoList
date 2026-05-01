@@ -6,7 +6,6 @@ import { UsersModule } from './users/users.module';
 import { AuthAccountsModule } from './auth-accounts/auth-accounts.module';
 import { TodosModule } from './todos/todos.module';
 import { TagsModule } from './tags/tags.module';
-import { TodoTagsModule } from './todo-tags/todo-tags.module';
 import { typeOrmConfig } from './configs/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './configs/jwt.config';
@@ -25,7 +24,6 @@ import { JwtAuthGuard } from './auth-accounts/guards/jwt-auth.guard';
     AuthAccountsModule,
     TodosModule,
     TagsModule,
-    TodoTagsModule,
   ],
   controllers: [AppController],
   providers: [
