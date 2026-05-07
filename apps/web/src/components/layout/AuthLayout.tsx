@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
 
 export function AuthLayout() {
   return (
@@ -7,13 +7,13 @@ export function AuthLayout() {
         {/* 사이드바 */}
         <aside className="w-[21.25rem] h-full bg-sidebar flex items-center justify-center shrink-0">
           <div className="flex flex-col items-center gap-3">
-            <span className="font-pretendard font-bold text-[2.5rem] text-white leading-[3.75rem]">
+            <span className="font-bold text-[2.5rem] text-white leading-[3.75rem]">
               ✓
             </span>
-            <span className="font-pretendard font-bold text-2xl text-white leading-9">
+            <span className="font-bold text-2xl text-white leading-9">
               TodoList
             </span>
-            <p className="font-pretendard text-[0.8125rem] text-muted text-center leading-[1.3rem] m-0">
+            <p className="text-[0.8125rem] text-muted text-center leading-[1.3rem] m-0">
               일상의 투두를
               <br />
               깔끔하게 관리하세요

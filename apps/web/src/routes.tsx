@@ -1,15 +1,19 @@
-import React, { Suspense } from 'react';
-import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
-import { AuthLayout } from './components/layout/AuthLayout';
+import React, { Suspense } from "react";
+import {
+  createBrowserRouter,
+  Navigate,
+  type RouteObject,
+} from "react-router-dom";
+import { AuthLayout } from "./components/layout/AuthLayout";
 
 export const ROUTES = {
-  LOGIN: '/login',
-  SIGNUP: '/signup',
+  LOGIN: "/login",
+  SIGNUP: "/signup",
 } as const;
 
 const lazyRoutes = {
-  LoginPage: React.lazy(() => import('./pages/LoginPage')),
-  SignupPage: React.lazy(() => import('./pages/SignupPage')),
+  LoginPage: React.lazy(() => import("./pages/LoginPage")),
+  SignupPage: React.lazy(() => import("./pages/SignupPage")),
 };
 
 const routes: RouteObject[] = [
@@ -34,7 +38,7 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  { path: '*', element: <Navigate to={ROUTES.LOGIN} replace /> },
+  { path: "*", element: <Navigate to={ROUTES.LOGIN} replace /> },
 ];
 
 export const router = createBrowserRouter(routes);
