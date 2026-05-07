@@ -18,8 +18,8 @@ export function Input({
   autoComplete,
 }: InputProps) {
   return (
-    <div className="flex flex-col gap-[2px] w-full">
-      <label className="font-pretendard text-[12px] text-label leading-[18px]">
+    <div className="flex flex-col gap-0.5 w-full">
+      <label className="font-pretendard text-xs text-label leading-[1.125rem]">
         {label}
       </label>
       <input
@@ -29,7 +29,7 @@ export function Input({
         onChange={onChange}
         name={name}
         autoComplete={autoComplete}
-        className="h-[36px] bg-input-bg border-[1.5px] border-border-input rounded-[4px] px-[10px] py-[8px] font-pretendard text-[13px] text-dark/80 placeholder:text-placeholder outline-none focus:border-dark transition-colors duration-150 w-full"
+        className="h-9 bg-input-bg border-[1.5px] border-border-input rounded px-2.5 py-2 font-pretendard text-[0.8125rem] text-dark/80 placeholder:text-placeholder outline-none focus:border-dark transition-colors duration-150 w-full"
       />
     </div>
   );

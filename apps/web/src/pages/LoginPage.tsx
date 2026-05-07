@@ -19,7 +19,7 @@ export default function LoginPage() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col px-[40px] pt-[110.75px]"
+      className="flex flex-col px-10 pt-[6.9219rem]"
     >
       <AuthTabSwitch
         activeTab="login"
@@ -28,7 +28,7 @@ export default function LoginPage() {
         }}
       />
 
-      <div className="mt-[24px] flex flex-col gap-[10px]">
+      <div className="mt-6 flex flex-col gap-2.5">
         <Input
           label="이메일"
           type="email"
@@ -47,20 +47,20 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="mt-[16px]">
+      <div className="mt-4">
         <Button type="submit" fullWidth>
           로그인
         </Button>
       </div>
 
-      <div className="mt-[14px]">
+      <div className="mt-3.5">
         <Divider />
       </div>
 
-      <div className="mt-[14px]">
+      <div className="mt-3.5">
         <Button variant="outline" fullWidth>
-          <span className="flex items-center justify-center gap-[8px]">
-            <span className="font-bold text-[14px]">G</span>
+          <span className="flex items-center justify-center gap-2">
+            <span className="font-bold text-sm">G</span>
             <span>Google로 로그인</span>
           </span>
         </Button>

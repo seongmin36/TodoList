@@ -16,7 +16,7 @@ export function Button({
   disabled,
 }: ButtonProps) {
   const base =
-    'h-[38px] rounded-[4px] font-pretendard text-[13px] font-bold cursor-pointer border-2 transition-opacity duration-150 hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed';
+    'h-9.5 rounded font-pretendard text-[0.8125rem] font-bold cursor-pointer border-2 transition-opacity duration-150 hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'bg-dark border-dark text-white',

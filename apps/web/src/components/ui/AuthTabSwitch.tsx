@@ -5,10 +5,10 @@ interface AuthTabSwitchProps {
 
 export function AuthTabSwitch({ activeTab, onChange }: AuthTabSwitchProps) {
   const tabBase =
-    'flex-1 h-[35px] rounded-[4px] font-pretendard text-[14px] cursor-pointer border-0 transition-colors duration-150';
+    'flex-1 h-[2.1875rem] rounded font-pretendard text-sm cursor-pointer border-0 transition-colors duration-150';
 
   return (
-    <div className="flex border-2 border-dark rounded-[6px] p-[2px] w-[169px] h-[39px]">
+    <div className="flex border-2 border-dark rounded-md p-0.5 w-[10.5625rem] h-[2.4375rem]">
       <button
         type="button"
         onClick={() => onChange('login')}
