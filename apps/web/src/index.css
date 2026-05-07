@@ -1,20 +1,76 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Caveat";
+  src: url("/font/Caveat-Regular.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Caveat";
+  src: url("/font/Caveat-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Caveat";
+  src: url("/font/Caveat-Regular.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Caveat";
+  src: url("/font/Caveat-Bold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Caveat";
+  src: url("/font/Caveat-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kyobo Handwriting 2025";
+  src: url("/font/KyoboHandwriting2025lyb.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  /* fonts */
-  --font-pretendard: 'Pretendard', sans-serif;
+  --font-sans: "Caveat", "Kyobo Handwriting 2025", ui-sans-serif, sans-serif;
 
   /* colors */
-  --color-dark:           #222;
-  --color-sidebar:        #1a1a1a;
-  --color-input-bg:       #faf9f7;
-  --color-border-input:   #aaa;
-  --color-label:          #555;
-  --color-tab-inactive:   #666;
-  --color-muted:          #aaa;
-  --color-divider:        #ddd;
-  --color-placeholder:    rgba(10, 10, 10, 0.5);
+  --color-dark: #222;
+  --color-sidebar: #1a1a1a;
+  --color-input-bg: #faf9f7;
+  --color-border-input: #aaa;
+  --color-label: #555;
+  --color-tab-inactive: #666;
+  --color-muted: #aaa;
+  --color-divider: #ddd;
+  --color-placeholder: rgba(10, 10, 10, 0.5);
+
+  /* todo */
+  --color-todo-border: #ccc;
+  --color-todo-text: #111;
+  --color-subtext: #888;
+  --color-done-text: #999;
+  --color-done-bg: #f7f6f4;
+  --color-done-check: #555;
+  --color-date-active: #4a90d9;
+  --color-today: #c0392b;
 }
 
 * {
@@ -23,7 +79,7 @@
 
 body {
   margin: 0;
-  font-family: 'Pretendard', sans-serif;
+  font-family: "Caveat", "Kyobo Handwriting 2025", ui-sans-serif, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
