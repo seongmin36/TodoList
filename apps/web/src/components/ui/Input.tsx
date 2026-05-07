@@ -19,7 +19,7 @@ export function Input({
 }: InputProps) {
   return (
     <div className="flex flex-col gap-[2px] w-full">
-      <label className="font-['Pretendard',sans-serif] text-[12px] text-[#555] leading-[18px]">
+      <label className="font-pretendard text-[12px] text-label leading-[18px]">
         {label}
       </label>
       <input
@@ -29,7 +29,7 @@ export function Input({
         onChange={onChange}
         name={name}
         autoComplete={autoComplete}
-        className="h-[36px] bg-[#faf9f7] border-[1.5px] border-[#aaa] rounded-[4px] px-[10px] py-[8px] font-['Pretendard',sans-serif] text-[13px] text-[rgba(10,10,10,0.8)] placeholder:text-[rgba(10,10,10,0.5)] outline-none focus:border-[#222] transition-colors duration-150 w-full"
+        className="h-[36px] bg-input-bg border-[1.5px] border-border-input rounded-[4px] px-[10px] py-[8px] font-pretendard text-[13px] text-dark/80 placeholder:text-placeholder outline-none focus:border-dark transition-colors duration-150 w-full"
       />
     </div>
   );
