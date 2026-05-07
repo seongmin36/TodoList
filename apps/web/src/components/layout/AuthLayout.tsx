@@ -1,8 +1,6 @@
-interface AuthLayoutProps {
-  children: React.ReactNode;
-}
+import { Outlet } from 'react-router-dom';
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout() {
   return (
     <div className="flex w-full min-h-screen items-center justify-center bg-white">
       <div className="flex w-[800px] h-[580px] shadow-[0_4px_32px_rgba(0,0,0,0.10)]">
@@ -23,9 +21,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           </div>
         </aside>
 
-        {/* 콘텐츠 영역 */}
+        {/* 페이지 콘텐츠 */}
         <main className="flex-1 bg-white relative overflow-hidden">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
