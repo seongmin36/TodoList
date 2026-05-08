@@ -4,16 +4,18 @@ import {
   Navigate,
   type RouteObject,
 } from "react-router-dom";
-import { AuthLayout } from "./components/layout/AuthLayout";
+import { AuthLayout } from "./auth/layouts/AuthLayout";
 
 export const ROUTES = {
   LOGIN: "/login",
   SIGNUP: "/signup",
+  TODOS: "/todos",
 } as const;
 
 const lazyRoutes = {
-  LoginPage: React.lazy(() => import("./pages/LoginPage")),
-  SignupPage: React.lazy(() => import("./pages/SignupPage")),
+  LoginPage: React.lazy(() => import("./auth/pages/LoginPage")),
+  SignupPage: React.lazy(() => import("./auth/pages/SignupPage")),
+  TodoPage: React.lazy(() => import("./todo/pages/TodoPage")),
 };
 
 const routes: RouteObject[] = [
@@ -37,6 +39,14 @@ const routes: RouteObject[] = [
         ),
       },
     ],
+  },
+  {
+    path: ROUTES.TODOS,
+    element: (
+      <Suspense fallback={null}>
+        <lazyRoutes.TodoPage />
+      </Suspense>
+    ),
   },
   { path: "*", element: <Navigate to={ROUTES.LOGIN} replace /> },
 ];
