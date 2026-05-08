@@ -1,4 +1,5 @@
 import { useReducer, useState } from "react";
+import { TodoModal } from "../components/TodoModal";
 import { DateRangeFilter } from "../components/DateRangeFilter";
 import {
   FilterTabBar,
@@ -8,6 +9,7 @@ import {
 import { SearchInput } from "../components/SearchInput";
 import { TodoItem } from "../components/TodoItem";
 import { MOCK_TODOS, type MockTodo } from "../mocks/todos";
+import { useTodoModalStore } from "../stores/todoModalStore";
 
 interface FilterState {
   activeTab: FilterType;
@@ -51,6 +53,7 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
 export default function TodoPage() {
   const [todos, setTodos] = useState<MockTodo[]>(MOCK_TODOS);
   const [filter, dispatch] = useReducer(filterReducer, initialFilter);
+  const openCreate = useTodoModalStore((s) => s.openCreate);
 
   const filteredTodos = todos.filter((todo) => {
     if (filter.activeTab === "incomplete" && todo.isDone) return false;
@@ -97,6 +100,7 @@ export default function TodoPage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
+            onClick={openCreate}
             className="h-[2.0625rem] px-3.5 bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer"
           >
             + 새 투두
@@ -169,9 +173,12 @@ export default function TodoPage() {
         </div>
       </div>
 
+      <TodoModal />
+
       {/* 플로팅 버튼 */}
       <button
         type="button"
+        onClick={openCreate}
         className="fixed bottom-6 right-6 flex size-10 items-center justify-center rounded-full border-0 bg-dark text-xl font-bold text-white shadow-lg"
       >
         <span className="-translate-y-[2px] -translate-x-[1px]">+</span>
