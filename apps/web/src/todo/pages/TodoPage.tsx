@@ -66,20 +66,32 @@ export default function TodoPage() {
 
   const tabs: TabItem[] = [
     { id: "all", label: "전체", count: todos.length },
-    { id: "incomplete", label: "미완료", count: todos.filter((t) => !t.isDone).length },
-    { id: "complete", label: "완료", count: todos.filter((t) => t.isDone).length },
-    { id: "recurring", label: "반복", count: todos.filter((t) => t.isRecurring).length },
+    {
+      id: "incomplete",
+      label: "미완료",
+      count: todos.filter((t) => !t.isDone).length,
+    },
+    {
+      id: "complete",
+      label: "완료",
+      count: todos.filter((t) => t.isDone).length,
+    },
+    {
+      id: "recurring",
+      label: "반복",
+      count: todos.filter((t) => t.isRecurring).length,
+    },
   ];
 
   const handleToggle = (id: number) => {
     setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isDone: !t.isDone } : t))
+      prev.map((t) => (t.id === id ? { ...t, isDone: !t.isDone } : t)),
     );
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* 헤더 */}
       <header className="h-12 flex items-center justify-between px-6 border-b border-divider">
         <span className="text-[1.0625rem] font-bold text-dark">✓ TodoList</span>
         <div className="flex items-center gap-3">
@@ -93,9 +105,9 @@ export default function TodoPage() {
         </div>
       </header>
 
-      {/* Page content */}
+      {/* 페이지 컨텐츠 */}
       <div className="w-[60rem] mx-auto">
-        {/* Filter Tab Bar */}
+        {/* 필터 탭 바 */}
         <div className="h-[2.531rem] bg-input-bg border-b-2 border-dark flex items-center justify-between">
           <FilterTabBar
             activeTab={filter.activeTab}
@@ -111,7 +123,7 @@ export default function TodoPage() {
           </button>
         </div>
 
-        {/* Date Range Filter */}
+        {/* 날짜 범위 필터 */}
         <div className="px-[1.125rem] py-3 border-b border-divider">
           <DateRangeFilter
             startDate={filter.startDate}
@@ -123,7 +135,7 @@ export default function TodoPage() {
           />
         </div>
 
-        {/* Toolbar */}
+        {/* 툴바 */}
         <div className="h-[3.031rem] flex items-center justify-between px-[1.125rem]">
           <span className="text-[0.8125rem] text-label">
             {filteredTodos.length}개 항목
@@ -134,7 +146,7 @@ export default function TodoPage() {
           />
         </div>
 
-        {/* Todo List */}
+        {/* 투두 목록 */}
         <div className="flex flex-col gap-1.5 px-[1.125rem] py-[0.875rem]">
           {filteredTodos.length === 0 ? (
             <p className="text-center text-[0.8125rem] text-muted py-10">
@@ -157,12 +169,12 @@ export default function TodoPage() {
         </div>
       </div>
 
-      {/* FAB */}
+      {/* 플로팅 버튼 */}
       <button
         type="button"
-        className="fixed bottom-6 right-6 size-10 bg-dark text-white text-xl font-bold rounded-full border-0 cursor-pointer flex items-center justify-center shadow-lg"
+        className="fixed bottom-6 right-6 flex size-10 items-center justify-center rounded-full border-0 bg-dark text-xl font-bold text-white shadow-lg"
       >
-        +
+        <span className="-translate-y-[2px] -translate-x-[1px]">+</span>
       </button>
     </div>
   );

@@ -14,7 +14,7 @@ export default function SignupPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: signup API 연동
+    // TODO: 회원가입 API 연동
   };
 
   return (

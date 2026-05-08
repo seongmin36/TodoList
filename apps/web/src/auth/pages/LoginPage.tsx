@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: login API 연동
+    // TODO: 로그인 API 연동
   };
 
   return (
