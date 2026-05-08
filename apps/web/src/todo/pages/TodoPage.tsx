@@ -1,4 +1,6 @@
 import { useReducer, useState } from "react";
+import { Link } from "react-router-dom";
+import { ROUTES } from "../../routes";
 import { TagManager } from "../components/TagManager";
 import { TodoModal } from "../components/TodoModal";
 import { DateRangeFilter } from "../components/DateRangeFilter";
@@ -99,6 +101,12 @@ export default function TodoPage() {
       <header className="h-12 flex items-center justify-between px-6 border-b border-divider">
         <span className="text-[1.0625rem] font-bold text-dark">✓ TodoList</span>
         <div className="flex items-center gap-3">
+          <Link
+            to={ROUTES.TRASH}
+            className="h-[2.0625rem] px-3.5 inline-flex items-center border-[1.5px] border-border-input text-[#444] text-[0.8125rem] font-bold rounded no-underline hover:opacity-85"
+          >
+            휴지통
+          </Link>
           <button
             type="button"
             onClick={openCreate}
