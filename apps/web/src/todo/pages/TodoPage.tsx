@@ -114,7 +114,15 @@ export default function TodoPage() {
           >
             + 새 투두
           </button>
-          <div className="size-7 rounded-full bg-[#d0d0d0]" />
+          <Link
+            to={ROUTES.SETTINGS_PROFILE}
+            className="flex size-7 shrink-0 items-center justify-center rounded-[0.875rem] border-2 border-dark bg-[#E0DDD8] no-underline"
+            aria-label="프로필 설정"
+          >
+            <span className="text-[0.6875rem] leading-[1.03125rem] text-dark">
+              JD
+            </span>
+          </Link>
         </div>
       </header>
 
