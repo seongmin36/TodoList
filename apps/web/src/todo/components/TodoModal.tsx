@@ -1,13 +1,8 @@
 import { useState } from "react";
+import { useTagManagerStore } from "../stores/tagManagerStore";
+import { useTagStore } from "../stores/tagStore";
 import { useTodoModalStore } from "../stores/todoModalStore";
 import { TodoTag } from "./TodoTag";
-
-const MODAL_TAGS = [
-  { name: "업무", color: "#4a90d9" },
-  { name: "학습", color: "#27ae60" },
-  { name: "생활", color: "#e67e22" },
-  { name: "건강", color: "#8e44ad" },
-];
 
 const RECURRING_OPTIONS = ["없음", "매일", "매주", "매월"];
 
@@ -29,6 +24,8 @@ const initialForm: FormState = {
 
 export function TodoModal() {
   const { isOpen, mode, close } = useTodoModalStore();
+  const tags = useTagStore((s) => s.tags);
+  const openTagManager = useTagManagerStore((s) => s.open);
   const [form, setForm] = useState<FormState>(initialForm);
 
   if (!isOpen) return null;
@@ -132,7 +129,7 @@ export function TodoModal() {
           <div className="flex flex-col gap-0.5">
             <label className="text-[0.75rem] text-label">태그</label>
             <div className="flex flex-wrap gap-1.5">
-              {MODAL_TAGS.map((tag) => (
+              {tags.map((tag) => (
                 <button
                   key={tag.name}
                   type="button"
@@ -149,6 +146,7 @@ export function TodoModal() {
               ))}
               <button
                 type="button"
+                onClick={openTagManager}
                 className="inline-flex h-[1.344rem] cursor-pointer items-center rounded-[0.625rem] border-[1.5px] border-dashed border-[#999] bg-transparent px-[0.4375rem] text-[0.6875rem] text-[#999]"
               >
                 + 태그 추가

@@ -1,4 +1,5 @@
 import { useReducer, useState } from "react";
+import { TagManager } from "../components/TagManager";
 import { TodoModal } from "../components/TodoModal";
 import { DateRangeFilter } from "../components/DateRangeFilter";
 import {
@@ -174,6 +175,7 @@ export default function TodoPage() {
       </div>
 
       <TodoModal />
+      <TagManager />
 
       {/* 플로팅 버튼 */}
       <button
