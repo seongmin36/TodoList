@@ -27,6 +27,9 @@ const lazyRoutes = {
     () => import("./account/layouts/AccountSettingsLayout"),
   ),
   ProfileEditPage: React.lazy(() => import("./account/pages/ProfileEditPage")),
+  PasswordChangePage: React.lazy(
+    () => import("./account/pages/PasswordChangePage"),
+  ),
   SettingsStubPage: React.lazy(
     () => import("./account/pages/SettingsStubPage"),
   ),
@@ -94,7 +97,7 @@ const routes: RouteObject[] = [
         path: "password",
         element: (
           <Suspense fallback={null}>
-            <lazyRoutes.SettingsStubPage />
+            <lazyRoutes.PasswordChangePage />
           </Suspense>
         ),
       },

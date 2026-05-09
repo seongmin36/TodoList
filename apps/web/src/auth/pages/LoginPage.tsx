@@ -5,6 +5,7 @@ import { Button } from "../../shared/components/Button";
 import { Divider } from "../../shared/components/Divider";
 import { Input } from "../../shared/components/Input";
 import { ROUTES } from "../../routes";
+import GoogleIcon from "../../assets/logo/google.svg?react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export default function LoginPage() {
       <div className="mt-3.5">
         <Button variant="outline" fullWidth>
           <span className="flex items-center justify-center gap-2">
-            <span className="font-bold text-sm">G</span>
+            <GoogleIcon width={16} height={16} />
             <span>Google로 로그인</span>
           </span>
         </Button>
