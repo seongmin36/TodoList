@@ -7,31 +7,42 @@ import { Button } from "@/shared/components/Button";
 import { Divider } from "@/shared/components/Divider";
 import { Input } from "@/shared/components/Input";
 import { ROUTES } from "@/routes";
+import { authApi } from "@/lib/api/auth";
+import { useAuthStore } from "@/shared/stores/authStore";
+import { ApiError } from "@/lib/api/client";
 import GoogleIcon from "@/assets/logo/google.svg?react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const setToken = useAuthStore((s) => s.setToken);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (_data: LoginInput) => {
-    // TODO: 로그인 API 연동
-  };
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      const { accessToken } = await authApi.login(data);
+      setToken(accessToken);
+      void navigate(ROUTES.TODOS);
+    } catch (e) {
+      setError("root", {
+        message: e instanceof ApiError ? e.message : "로그인에 실패했습니다.",
+      });
+    }
+  });
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col px-10 pt-[6.9219rem]"
-    >
+    <form onSubmit={onSubmit} className="flex flex-col px-10 pt-[6.9219rem]">
       <AuthTabSwitch
         activeTab="login"
         onChange={(tab) => {
-          if (tab === "signup") navigate(ROUTES.SIGNUP);
+          if (tab === "signup") void navigate(ROUTES.SIGNUP);
         }}
       />
 
@@ -54,9 +65,13 @@ export default function LoginPage() {
         />
       </div>
 
+      {errors.root && (
+        <p className="mt-2 text-xs text-red-500">{errors.root.message}</p>
+      )}
+
       <div className="mt-4">
-        <Button type="submit" fullWidth>
-          로그인
+        <Button type="submit" fullWidth disabled={isSubmitting}>
+          {isSubmitting ? "로그인 중..." : "로그인"}
         </Button>
       </div>
 

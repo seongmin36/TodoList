@@ -1,40 +1,58 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { signupSchema, type SignupInput } from "@repo/schemas";
+import { signupFormSchema, type SignupFormInput } from "@repo/schemas";
 import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
 import { Button } from "@/shared/components/Button";
 import { Divider } from "@/shared/components/Divider";
 import { Input } from "@/shared/components/Input";
 import { ROUTES } from "@/routes";
+import { authApi } from "@/lib/api/auth";
+import { ApiError } from "@/lib/api/client";
+import GoogleIcon from "@/assets/logo/google.svg?react";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<SignupInput>({
-    resolver: zodResolver(signupSchema),
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormInput>({
+    resolver: zodResolver(signupFormSchema),
   });
 
-  const onSubmit = (_data: SignupInput) => {
-    // TODO: 회원가입 API 연동
-  };
+  const onSubmit = handleSubmit(async ({ passwordConfirm: _, ...data }) => {
+    try {
+      await authApi.signup(data);
+      void navigate(ROUTES.LOGIN);
+    } catch (e) {
+      setError("root", {
+        message:
+          e instanceof ApiError ? e.message : "회원가입에 실패했습니다.",
+      });
+    }
+  });
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col px-10 pt-[4.859rem]"
-    >
+    <form onSubmit={onSubmit} className="flex flex-col px-10 pt-[4.859rem]">
       <AuthTabSwitch
         activeTab="signup"
         onChange={(tab) => {
-          if (tab === "login") navigate(ROUTES.LOGIN);
+          if (tab === "login") void navigate(ROUTES.LOGIN);
         }}
       />
 
       <div className="mt-6 flex flex-col gap-2.5">
+        <Input
+          label="이름"
+          type="text"
+          placeholder="홍길동"
+          autoComplete="name"
+          error={errors.name?.message}
+          {...register("name")}
+        />
         <Input
           label="이메일"
           type="email"
@@ -61,9 +79,13 @@ export default function SignupPage() {
         />
       </div>
 
+      {errors.root && (
+        <p className="mt-2 text-xs text-red-500">{errors.root.message}</p>
+      )}
+
       <div className="mt-4">
-        <Button type="submit" fullWidth>
-          회원가입
+        <Button type="submit" fullWidth disabled={isSubmitting}>
+          {isSubmitting ? "가입 중..." : "회원가입"}
         </Button>
       </div>
 
@@ -74,7 +96,7 @@ export default function SignupPage() {
       <div className="mt-3.5">
         <Button variant="outline" fullWidth>
           <span className="flex items-center justify-center gap-2">
-            <span className="font-bold text-sm">G</span>
+            <GoogleIcon width={16} height={16} />
             <span>Google로 로그인</span>
           </span>
         </Button>
