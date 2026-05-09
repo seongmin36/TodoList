@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthTabSwitch } from "../components/AuthTabSwitch";
-import { Button } from "../../shared/components/Button";
-import { Divider } from "../../shared/components/Divider";
-import { Input } from "../../shared/components/Input";
-import { ROUTES } from "../../routes";
-import GoogleIcon from "../../assets/logo/google.svg?react";
+import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
+import { Button } from "@/shared/components/Button";
+import { Divider } from "@/shared/components/Divider";
+import { Input } from "@/shared/components/Input";
+import { ROUTES } from "@/routes";
+import GoogleIcon from "@/assets/logo/google.svg?react";
 
 export default function LoginPage() {
   const navigate = useNavigate();

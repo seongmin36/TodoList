@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { ROUTES } from "../../routes";
-import { TodoAppHeader } from "../../todo/components/TodoAppHeader";
+import { ROUTES } from "@/routes";
+import { TodoAppHeader } from "@/todo/components/TodoAppHeader";
 
 const navItemClass =
   "flex h-[2.3125rem] w-full items-center pl-4 text-[0.8125rem] leading-[1.21875rem] no-underline";

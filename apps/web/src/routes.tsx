@@ -4,7 +4,7 @@ import {
   Navigate,
   type RouteObject,
 } from "react-router-dom";
-import { AuthLayout } from "./auth/layouts/AuthLayout";
+import { AuthLayout } from "@/auth/layouts/AuthLayout";
 
 export const ROUTES = {
   LOGIN: "/login",
@@ -19,19 +19,19 @@ export const ROUTES = {
 } as const;
 
 const lazyRoutes = {
-  LoginPage: React.lazy(() => import("./auth/pages/LoginPage")),
-  SignupPage: React.lazy(() => import("./auth/pages/SignupPage")),
-  TodoPage: React.lazy(() => import("./todo/pages/TodoPage")),
-  TrashPage: React.lazy(() => import("./todo/pages/TrashPage")),
+  LoginPage: React.lazy(() => import("@/auth/pages/LoginPage")),
+  SignupPage: React.lazy(() => import("@/auth/pages/SignupPage")),
+  TodoPage: React.lazy(() => import("@/todo/pages/TodoPage")),
+  TrashPage: React.lazy(() => import("@/todo/pages/TrashPage")),
   AccountSettingsLayout: React.lazy(
-    () => import("./account/layouts/AccountSettingsLayout"),
+    () => import("@/account/layouts/AccountSettingsLayout"),
   ),
-  ProfileEditPage: React.lazy(() => import("./account/pages/ProfileEditPage")),
+  ProfileEditPage: React.lazy(() => import("@/account/pages/ProfileEditPage")),
   PasswordChangePage: React.lazy(
-    () => import("./account/pages/PasswordChangePage"),
+    () => import("@/account/pages/PasswordChangePage"),
   ),
   SettingsStubPage: React.lazy(
-    () => import("./account/pages/SettingsStubPage"),
+    () => import("@/account/pages/SettingsStubPage"),
   ),
 };
 

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthTabSwitch } from "../components/AuthTabSwitch";
-import { Button } from "../../shared/components/Button";
-import { Divider } from "../../shared/components/Divider";
-import { Input } from "../../shared/components/Input";
-import { ROUTES } from "../../routes";
+import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
+import { Button } from "@/shared/components/Button";
+import { Divider } from "@/shared/components/Divider";
+import { Input } from "@/shared/components/Input";
+import { ROUTES } from "@/routes";
 
 export default function SignupPage() {
   const navigate = useNavigate();

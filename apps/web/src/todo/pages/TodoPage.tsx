@@ -1,19 +1,19 @@
 import { useReducer, useState } from "react";
 import { Link } from "react-router-dom";
-import { ROUTES } from "../../routes";
-import { TodoAppHeader, ProfileAvatarLink } from "../components/TodoAppHeader";
-import { TagManager } from "../components/TagManager";
-import { TodoModal } from "../components/TodoModal";
-import { DateRangeFilter } from "../components/DateRangeFilter";
+import { ROUTES } from "@/routes";
+import { TodoAppHeader, ProfileAvatarLink } from "@/todo/components/TodoAppHeader";
+import { TagManager } from "@/todo/components/TagManager";
+import { TodoModal } from "@/todo/components/TodoModal";
+import { DateRangeFilter } from "@/todo/components/DateRangeFilter";
 import {
   FilterTabBar,
   type FilterType,
   type TabItem,
-} from "../components/FilterTabBar";
-import { SearchInput } from "../components/SearchInput";
-import { TodoItem } from "../components/TodoItem";
-import { MOCK_TODOS, type MockTodo } from "../mocks/todos";
-import { useTodoModalStore } from "../stores/todoModalStore";
+} from "@/todo/components/FilterTabBar";
+import { SearchInput } from "@/todo/components/SearchInput";
+import { TodoItem } from "@/todo/components/TodoItem";
+import { MOCK_TODOS, type MockTodo } from "@/todo/mocks/todos";
+import { useTodoModalStore } from "@/todo/stores/todoModalStore";
 
 interface FilterState {
   activeTab: FilterType;

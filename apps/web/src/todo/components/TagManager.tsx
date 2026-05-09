@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useTagManagerStore } from "../stores/tagManagerStore";
-import { useTagStore, type Tag } from "../stores/tagStore";
+import { useTagManagerStore } from "@/todo/stores/tagManagerStore";
+import { useTagStore, type Tag } from "@/todo/stores/tagStore";
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);

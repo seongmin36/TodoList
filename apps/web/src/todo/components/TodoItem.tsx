@@ -1,4 +1,4 @@
-import { TodoTag } from "./TodoTag";
+import { TodoTag } from "@/todo/components/TodoTag";
 
 interface TodoItemProps {
   title: string;

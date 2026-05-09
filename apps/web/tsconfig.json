@@ -2,13 +2,13 @@
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "noImplicitAny": true,
-    "noImplicitThis": true,
     "strict": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
-  },
+    "noImplicitAny": true,
+    "noImplicitThis": true
+  }
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { TodoAppHeader } from "../components/TodoAppHeader";
-import { MOCK_DELETED_TODOS, type MockDeletedTodo } from "../mocks/trash";
+import { TodoAppHeader } from "@/todo/components/TodoAppHeader";
+import { MOCK_DELETED_TODOS, type MockDeletedTodo } from "@/todo/mocks/trash";
 
 export default function TrashPage() {
   const [items, setItems] = useState<MockDeletedTodo[]>(MOCK_DELETED_TODOS);

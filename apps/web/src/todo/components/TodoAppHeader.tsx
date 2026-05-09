@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ROUTES } from "../../routes";
+import { ROUTES } from "@/routes";
 
 const avatarLinkClass =
   "flex size-7 shrink-0 items-center justify-center rounded-[0.875rem] border-2 border-dark bg-[#E0DDD8] no-underline";

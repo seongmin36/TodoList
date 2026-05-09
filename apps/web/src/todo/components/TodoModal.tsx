@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useTagManagerStore } from "../stores/tagManagerStore";
-import { useTagStore } from "../stores/tagStore";
-import { useTodoModalStore } from "../stores/todoModalStore";
-import { TodoTag } from "./TodoTag";
+import { useTagManagerStore } from "@/todo/stores/tagManagerStore";
+import { useTagStore } from "@/todo/stores/tagStore";
+import { useTodoModalStore } from "@/todo/stores/todoModalStore";
+import { TodoTag } from "@/todo/components/TodoTag";
 
 const RECURRING_OPTIONS = ["없음", "매일", "매주", "매월"];
 
