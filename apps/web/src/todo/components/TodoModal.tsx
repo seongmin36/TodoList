@@ -76,7 +76,7 @@ export function TodoModal() {
                 setForm((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder="투두 제목을 입력하세요"
-              className="h-[2.469rem] rounded border-2 border-dark bg-white px-3 text-[0.8125rem] text-dark outline-none placeholder:text-placeholder"
+              className="h-control-lg rounded border-2 border-dark bg-white px-3 text-[0.8125rem] text-dark outline-none placeholder:text-placeholder"
               autoFocus
             />
           </div>
@@ -104,7 +104,7 @@ export function TodoModal() {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, dueDate: e.target.value }))
                 }
-                className="h-[2.406rem] rounded border-[1.5px] border-border-input bg-white px-2.5 text-[0.8125rem] text-dark outline-none"
+                className="h-control rounded border-[1.5px] border-border-input bg-white px-2.5 text-[0.8125rem] text-dark outline-none"
               />
             </div>
             <div className="flex flex-1 flex-col gap-0.5">
@@ -114,7 +114,7 @@ export function TodoModal() {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, recurring: e.target.value }))
                 }
-                className="h-[2.406rem] cursor-pointer rounded border-[1.5px] border-border-input bg-white px-2.5 text-[0.8125rem] text-dark outline-none"
+                className="h-control cursor-pointer rounded border-[1.5px] border-border-input bg-white px-2.5 text-[0.8125rem] text-dark outline-none"
               >
                 {RECURRING_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>
@@ -147,7 +147,7 @@ export function TodoModal() {
               <button
                 type="button"
                 onClick={openTagManager}
-                className="inline-flex h-[1.344rem] cursor-pointer items-center rounded-[0.625rem] border-[1.5px] border-dashed border-[#999] bg-transparent px-[0.4375rem] text-[0.6875rem] text-[#999]"
+                className="inline-flex h-tag cursor-pointer items-center rounded-[0.625rem] border-[1.5px] border-dashed border-[#999] bg-transparent px-[0.4375rem] text-[0.6875rem] text-[#999]"
               >
                 + 태그 추가
               </button>
@@ -159,14 +159,14 @@ export function TodoModal() {
             <button
               type="button"
               onClick={handleClose}
-              className="h-[2.5625rem] w-[4.0125rem] cursor-pointer rounded border-2 border-border-input bg-transparent text-[0.8125rem] text-[#444]"
+              className="h-control-xl w-[4.0125rem] cursor-pointer rounded border-2 border-border-input bg-transparent text-[0.8125rem] text-[#444]"
             >
               취소
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="h-[2.5625rem] w-[4.0125rem] cursor-pointer rounded border-2 border-dark bg-dark text-[0.8125rem] font-bold text-white"
+              className="h-control-xl w-[4.0125rem] cursor-pointer rounded border-2 border-dark bg-dark text-[0.8125rem] font-bold text-white"
             >
               저장
             </button>

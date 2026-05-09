@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 export function AuthLayout() {
   return (
     <div className="flex w-full min-h-screen items-center justify-center bg-white">
-      <div className="flex w-[50rem] h-[36.25rem] shadow-[0_0.25rem_2rem_rgba(0,0,0,0.10)]">
+      <div className="flex w-[50rem] h-app-shell shadow-[0_0.25rem_2rem_rgba(0,0,0,0.10)]">
         {/* 사이드바 */}
         <aside className="w-[21.25rem] h-full bg-sidebar flex items-center justify-center shrink-0">
           <div className="flex flex-col items-center gap-3">

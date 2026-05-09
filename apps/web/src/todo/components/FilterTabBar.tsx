@@ -22,7 +22,7 @@ export function FilterTabBar({ activeTab, tabs, onChange }: FilterTabBarProps) {
             key={tab.id}
             type="button"
             onClick={() => onChange(tab.id)}
-            className="flex items-center gap-2 h-[2.406rem] px-[0.875rem] py-2 cursor-pointer border-0 bg-transparent"
+            className="flex h-control items-center gap-2 px-[0.875rem] py-2 cursor-pointer border-0 bg-transparent"
           >
             <span
               className={[
@@ -34,7 +34,7 @@ export function FilterTabBar({ activeTab, tabs, onChange }: FilterTabBarProps) {
             </span>
             <span
               className={[
-                "h-[1.0625rem] min-w-[1.0625rem] px-1 rounded-[0.625rem] text-[0.625rem] font-bold flex items-center justify-center",
+                "h-badge min-w-badge px-1 rounded-[0.625rem] text-[0.625rem] font-bold flex items-center justify-center",
                 isActive ? "bg-dark text-white" : "bg-divider text-tab-inactive",
               ].join(" ")}
             >

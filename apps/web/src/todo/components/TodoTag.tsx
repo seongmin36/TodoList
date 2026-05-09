@@ -13,7 +13,7 @@ function hexToRgba(hex: string, alpha: number): string {
 export function TodoTag({ name, color }: TodoTagProps) {
   return (
     <span
-      className="inline-flex items-center h-[1.344rem] px-[0.4375rem] border-[1.5px] rounded-[0.625rem] text-[0.6875rem] leading-[1.03125rem] shrink-0 whitespace-nowrap"
+      className="inline-flex h-tag items-center px-[0.4375rem] border-[1.5px] rounded-[0.625rem] text-[0.6875rem] leading-[1.03125rem] shrink-0 whitespace-nowrap"
       style={{
         color,
         borderColor: color,

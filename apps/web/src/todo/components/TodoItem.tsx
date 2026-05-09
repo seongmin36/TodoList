@@ -23,7 +23,7 @@ export function TodoItem({
     <div
       onClick={onToggle}
       className={[
-        "flex items-center gap-3 h-[2.656rem] border-[1.5px] border-todo-border rounded px-[0.844rem] py-[0.656rem] w-full cursor-pointer select-none",
+        "flex h-row items-center gap-3 border-[1.5px] border-todo-border rounded px-[0.844rem] py-[0.656rem] w-full cursor-pointer select-none",
         isDone ? "bg-done-bg" : "bg-white",
       ].join(" ")}
     >

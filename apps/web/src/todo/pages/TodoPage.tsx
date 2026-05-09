@@ -105,14 +105,14 @@ export default function TodoPage() {
             <div className="flex items-center gap-3">
               <Link
                 to={ROUTES.TRASH}
-                className="h-[2.0625rem] px-3.5 inline-flex items-center border-[1.5px] border-border-input text-[#444] text-[0.8125rem] font-bold rounded no-underline hover:opacity-85"
+                className="h-8 px-3.5 inline-flex items-center border-[1.5px] border-border-input text-[#444] text-[0.8125rem] font-bold rounded no-underline hover:opacity-85"
               >
                 휴지통
               </Link>
               <button
                 type="button"
                 onClick={openCreate}
-                className="h-[2.0625rem] px-3.5 bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer"
+                className="h-8 px-3.5 bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer"
               >
                 + 새 투두
               </button>
@@ -125,7 +125,7 @@ export default function TodoPage() {
       {/* 페이지 컨텐츠 */}
       <div className="mx-auto">
         {/* 필터 탭 바 */}
-        <div className="h-[2.531rem] bg-input-bg border-b-2 border-dark flex items-center justify-between">
+        <div className="h-subheader bg-input-bg border-b-2 border-dark flex items-center justify-between">
           <FilterTabBar
             activeTab={filter.activeTab}
             tabs={tabs}
@@ -153,7 +153,7 @@ export default function TodoPage() {
         </div>
 
         {/* 툴바 */}
-        <div className="h-[3.031rem] flex items-center justify-between px-[1.125rem]">
+        <div className="h-toolbar flex items-center justify-between px-[1.125rem]">
           <span className="text-[0.8125rem] text-label">
             {filteredTodos.length}개 항목
           </span>

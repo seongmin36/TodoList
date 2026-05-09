@@ -10,7 +10,7 @@ export function SearchInput({
   placeholder = "투두 검색...",
 }: SearchInputProps) {
   return (
-    <div className="flex items-center gap-1.5 h-[2.406rem] w-[17.5rem] bg-input-bg border-[1.5px] border-border-input rounded px-2.5 py-2">
+    <div className="flex h-control items-center gap-1.5 w-[17.5rem] bg-input-bg border-[1.5px] border-border-input rounded px-2.5 py-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="15"

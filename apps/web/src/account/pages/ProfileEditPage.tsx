@@ -17,7 +17,7 @@ export default function ProfileEditPage() {
         </div>
         <button
           type="button"
-          className="h-[1.875rem] w-[5.175rem] shrink-0 rounded border-2 border-border-input bg-transparent text-xs leading-[1.125rem] text-[#444444] hover:opacity-85"
+          className="h-chip w-[5.175rem] shrink-0 rounded border-2 border-border-input bg-transparent text-xs leading-[1.125rem] text-[#444444] hover:opacity-85"
         >
           이미지 변경
         </button>

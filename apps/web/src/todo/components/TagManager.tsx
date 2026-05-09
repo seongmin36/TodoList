@@ -57,7 +57,7 @@ export function TagManager() {
           <button
             type="button"
             onClick={() => {}}
-            className="h-[1.875rem] cursor-pointer rounded border-2 border-dark bg-dark px-3 text-[0.75rem] font-bold text-white"
+            className="h-chip cursor-pointer rounded border-2 border-dark bg-dark px-3 text-[0.75rem] font-bold text-white"
           >
             + 새 태그
           </button>
@@ -71,7 +71,7 @@ export function TagManager() {
                 /* 인라인 수정 폼 */
                 <div
                   key={tag.id}
-                  className="flex h-[2.75rem] items-center gap-2 rounded border-[1.5px] border-dark px-[0.844rem]"
+                  className="flex h-11 items-center gap-2 rounded border-[1.5px] border-dark px-[0.844rem]"
                 >
                   <input
                     type="text"
@@ -113,7 +113,7 @@ export function TagManager() {
                 /* 태그 행 */
                 <div
                   key={tag.id}
-                  className="flex h-[2.75rem] items-center gap-3 rounded border-[1.5px] border-todo-border px-[0.844rem]"
+                  className="flex h-11 items-center gap-3 rounded border-[1.5px] border-todo-border px-[0.844rem]"
                 >
                   {/* 색상 점 */}
                   <div

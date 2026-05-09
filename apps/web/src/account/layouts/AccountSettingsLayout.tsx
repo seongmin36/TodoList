@@ -3,7 +3,7 @@ import { ROUTES } from "@/routes";
 import { TodoAppHeader } from "@/todo/components/TodoAppHeader";
 
 const navItemClass =
-  "flex h-[2.3125rem] w-full items-center pl-4 text-[0.8125rem] leading-[1.21875rem] no-underline";
+  "flex h-sidebar-item w-full items-center pl-4 text-[0.8125rem] leading-[1.21875rem] no-underline";
 const navInactive = `${navItemClass} font-normal text-tab-inactive`;
 const navActive = `${navItemClass} bg-[#EDE9E3] font-bold text-todo-text`;
 

@@ -16,7 +16,7 @@ export function DateRangeFilter({
   onReset,
 }: DateRangeFilterProps) {
   return (
-    <div className="flex items-center gap-4 h-[2.156rem]">
+    <div className="flex h-filter items-center gap-4">
       <span className="text-xs text-label leading-[1.125rem] shrink-0">
         기간 선택:
       </span>
@@ -36,14 +36,14 @@ export function DateRangeFilter({
       <button
         type="button"
         onClick={onApply}
-        className="h-[1.969rem] w-[3.156rem] bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer shrink-0"
+        className="h-filter-button w-[3.156rem] bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer shrink-0"
       >
         적용
       </button>
       <button
         type="button"
         onClick={onReset}
-        className="h-[2.156rem] w-[4.046rem] border-[1.5px] border-border-input text-[#444] text-[0.8125rem] rounded bg-transparent cursor-pointer shrink-0"
+        className="h-filter w-[4.046rem] border-[1.5px] border-border-input text-[#444] text-[0.8125rem] rounded bg-transparent cursor-pointer shrink-0"
       >
         초기화
       </button>

@@ -51,6 +51,25 @@
 @theme {
   --font-sans: "Caveat", "Kyobo Handwriting 2025", ui-sans-serif, sans-serif;
 
+  /* 사이즈 */
+  --spacing-13: 3.25rem;
+  --spacing-app-shell: 36.25rem;
+  --spacing-toolbar: 3.031rem;
+  --spacing-subheader: 2.531rem;
+  --spacing-control: 2.406rem;
+  --spacing-control-lg: 2.469rem;
+  --spacing-control-xl: 2.5625rem;
+  --spacing-row: 2.656rem;
+  --spacing-sidebar-item: 2.3125rem;
+  --spacing-filter: 2.156rem;
+  --spacing-filter-button: 1.969rem;
+  --spacing-chip: 1.875rem;
+  --spacing-tag: 1.344rem;
+  --spacing-divider: 1.125rem;
+  --spacing-badge: 1.0625rem;
+  --spacing-action: 1.65625rem;
+  --spacing-empty: 22.5rem;
+
   /* colors */
   --color-dark: #222;
   --color-sidebar: #1a1a1a;
