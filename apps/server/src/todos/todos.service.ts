@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import {
   CreateTodoDto,
-  GetTodosRequestDto,
   TodoRecurrenceResponseDto,
   UpdateRecurrenceDto,
   UpdateTodoDto,
   UpdateTodoTagsDto,
 } from './dto/index';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RecurrenceType, Todo } from './entities/todo.entity';
+import { GetTodosQuery, RecurrenceType } from '@repo/schemas';
+import { Todo } from './entities/todo.entity';
 import {
   Between,
   FindOptionsWhere,
@@ -54,7 +54,7 @@ export class TodosService {
     return todo;
   }
 
-  async findAll(user: User, query: GetTodosRequestDto): Promise<Todo[]> {
+  async findAll(user: User, query: GetTodosQuery): Promise<Todo[]> {
     const { isDone, dueFrom, dueTo, recurrenceType, onlyRecurring } = query;
 
     const where: FindOptionsWhere<Todo> = {
@@ -67,11 +67,11 @@ export class TodosService {
     }
 
     if (dueFrom && dueTo) {
-      where.dueAt = Between(dueFrom, dueTo);
+      where.dueAt = Between(new Date(dueFrom), new Date(dueTo));
     } else if (dueFrom) {
-      where.dueAt = MoreThanOrEqual(dueFrom);
+      where.dueAt = MoreThanOrEqual(new Date(dueFrom));
     } else if (dueTo) {
-      where.dueAt = LessThanOrEqual(dueTo);
+      where.dueAt = LessThanOrEqual(new Date(dueTo));
     }
 
     if (recurrenceType) {
@@ -152,7 +152,7 @@ export class TodosService {
       todo.isDone = isDone;
       todo.completedAt = isDone ? new Date() : null;
     }
-    if (dueAt !== undefined) todo.dueAt = dueAt;
+    if (dueAt !== undefined) todo.dueAt = new Date(dueAt);
 
     return this.todosRepository.save(todo);
   }

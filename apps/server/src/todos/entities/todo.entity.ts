@@ -1,5 +1,6 @@
 import { Tag } from '@/tags/entities/tag.entity';
 import { User } from '@/users/entities/user.entity';
+import { RecurrenceType } from '@repo/schemas';
 import {
   Column,
   CreateDateColumn,
@@ -12,13 +13,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum RecurrenceType {
-  NONE = 'none',
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  YEARLY = 'yearly',
-}
+export { RecurrenceType };
 
 @Entity({ name: 'todos' })
 export class Todo {
@@ -46,7 +41,7 @@ export class Todo {
   @Column({
     name: 'recurrence_type',
     type: 'enum',
-    enum: RecurrenceType,
+    enum: RecurrenceType as unknown as (string | number)[],
     default: RecurrenceType.NONE,
   })
   recurrenceType: RecurrenceType;

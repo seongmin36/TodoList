@@ -1,32 +1,6 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { loginSchema, signupSchema, changePasswordSchema } from '@repo/schemas';
 
-export class SignupRequestDto {
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
-  @MinLength(8)
-  password: string;
-}
-
-export class LoginRequestDto {
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
-  password: string;
-}
-
-export class ResetPasswordDto {
-  @IsNotEmpty()
-  currentPassword: string;
-
-  @IsNotEmpty()
-  @MinLength(8)
-  newPassword: string;
-}
+export class SignupRequestDto extends createZodDto(signupSchema) {}
+export class LoginRequestDto extends createZodDto(loginSchema) {}
+export class ResetPasswordDto extends createZodDto(changePasswordSchema) {}

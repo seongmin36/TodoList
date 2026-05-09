@@ -1,43 +1,19 @@
-import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString, validateSync } from 'class-validator';
+import { z } from 'zod';
 
-class EnvironmentVariables {
-  @IsString()
-  @IsNotEmpty()
-  JWT_SECRET: string;
-
-  @IsString()
-  @IsNotEmpty()
-  JWT_EXPIRES_IN: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_HOST: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  DB_PORT: number;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_USERNAME: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_PASSWORD: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_NAME: string;
-}
+const envSchema = z.object({
+  JWT_SECRET: z.string().min(1),
+  JWT_EXPIRES_IN: z.string().min(1),
+  DB_HOST: z.string().min(1),
+  DB_PORT: z.coerce.number().int().positive(),
+  DB_USERNAME: z.string().min(1),
+  DB_PASSWORD: z.string().min(1),
+  DB_NAME: z.string().min(1),
+});
 
 export function validateEnv(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-  const errors = validateSync(validatedConfig);
-  if (errors.length > 0) {
-    throw new Error(`환경 변수 검증 실패: ${errors.toString()}`);
+  const result = envSchema.safeParse(config);
+  if (!result.success) {
+    throw new Error(`환경 변수 검증 실패:\n${result.error.toString()}`);
   }
-  return validatedConfig;
+  return result.data;
 }

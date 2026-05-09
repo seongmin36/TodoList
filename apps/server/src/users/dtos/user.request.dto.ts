@@ -1,10 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { updateProfileSchema } from '@repo/schemas';
 
-export class UpdateProfileDto {
-  @IsOptional()
-  @IsString()
-  name: string;
-
-  @IsOptional()
-  profileImage: string;
-}
+export class UpdateProfileDto extends createZodDto(updateProfileSchema) {}
