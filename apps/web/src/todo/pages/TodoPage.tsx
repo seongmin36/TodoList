@@ -1,6 +1,7 @@
 import { useReducer, useState } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../routes";
+import { TodoAppHeader, ProfileAvatarLink } from "../components/TodoAppHeader";
 import { TagManager } from "../components/TagManager";
 import { TodoModal } from "../components/TodoModal";
 import { DateRangeFilter } from "../components/DateRangeFilter";
@@ -97,37 +98,32 @@ export default function TodoPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 헤더 */}
-      <header className="h-12 flex items-center justify-between px-6 border-b border-divider">
-        <span className="text-[1.0625rem] font-bold text-dark">✓ TodoList</span>
-        <div className="flex items-center gap-3">
-          <Link
-            to={ROUTES.TRASH}
-            className="h-[2.0625rem] px-3.5 inline-flex items-center border-[1.5px] border-border-input text-[#444] text-[0.8125rem] font-bold rounded no-underline hover:opacity-85"
-          >
-            휴지통
-          </Link>
-          <button
-            type="button"
-            onClick={openCreate}
-            className="h-[2.0625rem] px-3.5 bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer"
-          >
-            + 새 투두
-          </button>
-          <Link
-            to={ROUTES.SETTINGS_PROFILE}
-            className="flex size-7 shrink-0 items-center justify-center rounded-[0.875rem] border-2 border-dark bg-[#E0DDD8] no-underline"
-            aria-label="프로필 설정"
-          >
-            <span className="text-[0.6875rem] leading-[1.03125rem] text-dark">
-              JD
-            </span>
-          </Link>
-        </div>
-      </header>
+      <div className="mx-auto w-full">
+        <TodoAppHeader
+          edge="subtle"
+          trailing={
+            <div className="flex items-center gap-3">
+              <Link
+                to={ROUTES.TRASH}
+                className="h-[2.0625rem] px-3.5 inline-flex items-center border-[1.5px] border-border-input text-[#444] text-[0.8125rem] font-bold rounded no-underline hover:opacity-85"
+              >
+                휴지통
+              </Link>
+              <button
+                type="button"
+                onClick={openCreate}
+                className="h-[2.0625rem] px-3.5 bg-dark text-white text-[0.8125rem] font-bold rounded border-0 cursor-pointer"
+              >
+                + 새 투두
+              </button>
+              <ProfileAvatarLink />
+            </div>
+          }
+        />
+      </div>
 
       {/* 페이지 컨텐츠 */}
-      <div className="w-[60rem] mx-auto">
+      <div className="mx-auto">
         {/* 필터 탭 바 */}
         <div className="h-[2.531rem] bg-input-bg border-b-2 border-dark flex items-center justify-between">
           <FilterTabBar

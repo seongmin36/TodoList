@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ROUTES } from "../../routes";
+import { TodoAppHeader } from "../components/TodoAppHeader";
 import { MOCK_DELETED_TODOS, type MockDeletedTodo } from "../mocks/trash";
 
 export default function TrashPage() {
@@ -16,20 +15,8 @@ export default function TrashPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="mx-auto w-full max-w-[50rem]">
-        <header className="flex h-12 items-center justify-between border-b-2 border-dark px-4.5 py-2.5">
-          <Link
-            to={ROUTES.TODOS}
-            className="text-[1.0625rem] font-bold leading-[1.59375rem] tracking-[0.0588em] text-[#0A0A0A] no-underline hover:opacity-85"
-          >
-            ✓ TodoList
-          </Link>
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-[0.875rem] border-2 border-dark bg-[#E0DDD8]">
-            <span className="text-[0.6875rem] leading-[1.03125rem] text-dark">
-              JD
-            </span>
-          </div>
-        </header>
+      <div className="mx-auto w-full">
+        <TodoAppHeader />
 
         <div className="flex h-[3.25rem] items-center justify-between border-b-2 border-[#EEEEEE] px-4.5 py-3.5">
           <div className="flex min-w-0 items-center gap-1.5">
