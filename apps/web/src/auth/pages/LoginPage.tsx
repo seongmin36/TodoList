@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { loginSchema, type LoginInput } from "@repo/schemas";
 import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
 import { Button } from "@/shared/components/Button";
 import { Divider } from "@/shared/components/Divider";
@@ -9,17 +11,21 @@ import GoogleIcon from "@/assets/logo/google.svg?react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (_data: LoginInput) => {
     // TODO: 로그인 API 연동
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col px-10 pt-[6.9219rem]"
     >
       <AuthTabSwitch
@@ -34,17 +40,17 @@ export default function LoginPage() {
           label="이메일"
           type="email"
           placeholder="example@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
+          error={errors.email?.message}
+          {...register("email")}
         />
         <Input
           label="비밀번호"
           type="password"
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          error={errors.password?.message}
+          {...register("password")}
         />
       </div>
 

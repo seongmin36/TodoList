@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { signupSchema, type SignupInput } from "@repo/schemas";
 import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
 import { Button } from "@/shared/components/Button";
 import { Divider } from "@/shared/components/Divider";
@@ -8,18 +10,21 @@ import { ROUTES } from "@/routes";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (_data: SignupInput) => {
     // TODO: 회원가입 API 연동
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col px-10 pt-[4.859rem]"
     >
       <AuthTabSwitch
@@ -34,25 +39,25 @@ export default function SignupPage() {
           label="이메일"
           type="email"
           placeholder="example@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
+          error={errors.email?.message}
+          {...register("email")}
         />
         <Input
           label="비밀번호"
           type="password"
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
+          error={errors.password?.message}
+          {...register("password")}
         />
         <Input
           label="비밀번호 확인"
           type="password"
           placeholder="••••••••"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
           autoComplete="new-password"
+          error={errors.passwordConfirm?.message}
+          {...register("passwordConfirm")}
         />
       </div>
 
