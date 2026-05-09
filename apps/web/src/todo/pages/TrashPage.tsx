@@ -18,12 +18,12 @@ export default function TrashPage() {
       <div className="mx-auto w-full">
         <TodoAppHeader />
 
-        <div className="flex h-13 items-center justify-between border-b-2 border-[#EEEEEE] px-4.5 py-3.5">
+        <div className="flex h-13 items-center justify-between border-b-2 border-[#EEEEEE] px-divider py-3.5">
           <div className="flex min-w-0 items-center gap-1.5">
             <h1 className="m-0 shrink-0 whitespace-nowrap text-[0.9375rem] font-bold leading-[1.40625rem] text-todo-text">
               🗑 삭제된 투두
             </h1>
-            <p className="m-0 truncate text-xs leading-[1.125rem] text-muted">
+            <p className="m-0 truncate text-xs leading-divider text-muted">
               (30일 이내 복원 가능)
             </p>
           </div>
@@ -41,7 +41,7 @@ export default function TrashPage() {
           </button>
         </div>
 
-        <div className="flex flex-col gap-1.5 px-4.5 py-3.5">
+        <div className="flex flex-col gap-1.5 px-divider py-3.5">
           {!hasItems ? (
             <div className="flex min-h-empty flex-col items-center justify-center gap-3.5 py-[5.75rem]">
               <div className="flex size-[6.25rem] items-center justify-center rounded-lg border-[0.09375rem] border-dashed border-todo-border">
