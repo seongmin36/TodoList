@@ -19,8 +19,9 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/*": ["src/*"],
-      "@repo/schemas": ["../../packages/schemas/src/index.ts"]
+      "@/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src", "test"],
+  "exclude": ["dist", "node_modules"]
 }

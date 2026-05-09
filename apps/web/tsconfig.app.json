@@ -25,9 +25,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@repo/schemas": ["../../packages/schemas/src/index.ts"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "../../packages/schemas/src"]
+  "include": ["src"],
+  "references": [{ "path": "../../packages/schemas/tsconfig.build.json" }]
 }

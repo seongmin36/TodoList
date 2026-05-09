@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "pnpm --filter @repo/schemas run build",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@repo/schemas": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

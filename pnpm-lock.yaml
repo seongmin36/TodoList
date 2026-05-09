@@ -42,6 +42,9 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.1
         version: 11.0.1(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(pg@8.20.0)(ts-node@10.9.2(@types/node@24.12.2)(typescript@5.9.3)))
+      '@repo/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -51,6 +54,9 @@ importers:
       class-validator:
         specifier: ^0.15.1
         version: 0.15.1
+      nestjs-zod:
+        specifier: ^5.3.0
+        version: 5.3.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)(zod@3.25.76)
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -69,6 +75,9 @@ importers:
       typeorm:
         specifier: ^0.3.28
         version: 0.3.28(pg@8.20.0)(ts-node@10.9.2(@types/node@24.12.2)(typescript@5.9.3))
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -154,6 +163,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.75.0(react@19.2.4))
+      '@repo/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -3026,6 +3038,17 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  nestjs-zod@5.3.0:
+    resolution: {integrity: sha512-QY6imXm9heMOpWigjFHgMWPvc1ZQHeNQ7pdogo9Q5xj5F8HpqZ972vKlVdkaTyzYlOXJP/yVy3wlF1EjubDQPg==}
+    peerDependencies:
+      '@nestjs/common': ^10.0.0 || ^11.0.0
+      '@nestjs/swagger': ^7.4.2 || ^8.0.0 || ^11.0.0
+      rxjs: ^7.0.0
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@nestjs/swagger':
+        optional: true
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -7105,6 +7128,13 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
+
+  nestjs-zod@5.3.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)(zod@3.25.76):
+    dependencies:
+      '@nestjs/common': 11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      deepmerge: 4.3.1
+      rxjs: 7.8.2
+      zod: 3.25.76
 
   no-case@3.0.4:
     dependencies:

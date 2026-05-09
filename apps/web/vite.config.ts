@@ -13,7 +13,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@repo/schemas": path.resolve(__dirname, "../../packages/schemas/src/index.ts"),
     },
   },
 });
