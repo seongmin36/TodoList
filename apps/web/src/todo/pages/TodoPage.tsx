@@ -1,19 +1,17 @@
-import { useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { TodoAppHeader, ProfileAvatarLink } from "@/todo/components/TodoAppHeader";
 import { TagManager } from "@/todo/components/TagManager";
 import { TodoModal } from "@/todo/components/TodoModal";
 import { DateRangeFilter } from "@/todo/components/DateRangeFilter";
-import {
-  FilterTabBar,
-  type FilterType,
-  type TabItem,
-} from "@/todo/components/FilterTabBar";
+import { FilterTabBar, type FilterType, type TabItem } from "@/todo/components/FilterTabBar";
 import { SearchInput } from "@/todo/components/SearchInput";
 import { TodoItem } from "@/todo/components/TodoItem";
-import { MOCK_TODOS, type MockTodo } from "@/todo/mocks/todos";
 import { useTodoModalStore } from "@/todo/stores/todoModalStore";
+import { useTagStore } from "@/todo/stores/tagStore";
+import { useTodos } from "@/todo/hooks/useTodos";
+import { tagsApi } from "@/lib/api/tags";
 
 interface FilterState {
   activeTab: FilterType;
@@ -55,46 +53,31 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
 }
 
 export default function TodoPage() {
-  const [todos, setTodos] = useState<MockTodo[]>(MOCK_TODOS);
   const [filter, dispatch] = useReducer(filterReducer, initialFilter);
   const openCreate = useTodoModalStore((s) => s.openCreate);
+  const setTags = useTagStore((s) => s.setTags);
+  const { todos, isLoading, fetchTodos, toggle } = useTodos();
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter.activeTab === "incomplete" && todo.isDone) return false;
-    if (filter.activeTab === "complete" && !todo.isDone) return false;
-    if (filter.activeTab === "recurring" && !todo.isRecurring) return false;
-    if (
-      filter.search &&
-      !todo.title.toLowerCase().includes(filter.search.toLowerCase())
-    )
-      return false;
-    return true;
-  });
+  useEffect(() => {
+    void fetchTodos(filter.activeTab, filter.startDate, filter.endDate);
+  }, [filter.activeTab, filter.startDate, filter.endDate, fetchTodos]);
+
+  useEffect(() => {
+    tagsApi.getAll().then(setTags).catch(() => {});
+  }, [setTags]);
+
+  const filteredTodos = filter.search
+    ? todos.filter((t) =>
+        t.title.toLowerCase().includes(filter.search.toLowerCase()),
+      )
+    : todos;
 
   const tabs: TabItem[] = [
     { id: "all", label: "전체", count: todos.length },
-    {
-      id: "incomplete",
-      label: "미완료",
-      count: todos.filter((t) => !t.isDone).length,
-    },
-    {
-      id: "complete",
-      label: "완료",
-      count: todos.filter((t) => t.isDone).length,
-    },
-    {
-      id: "recurring",
-      label: "반복",
-      count: todos.filter((t) => t.isRecurring).length,
-    },
+    { id: "incomplete", label: "미완료", count: todos.filter((t) => !t.isDone).length },
+    { id: "complete", label: "완료", count: todos.filter((t) => t.isDone).length },
+    { id: "recurring", label: "반복", count: 0 },
   ];
-
-  const handleToggle = (id: number) => {
-    setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isDone: !t.isDone } : t)),
-    );
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -122,9 +105,7 @@ export default function TodoPage() {
         />
       </div>
 
-      {/* 페이지 컨텐츠 */}
       <div className="mx-auto">
-        {/* 필터 탭 바 */}
         <div className="h-subheader bg-input-bg border-b-2 border-dark flex items-center justify-between">
           <FilterTabBar
             activeTab={filter.activeTab}
@@ -140,7 +121,6 @@ export default function TodoPage() {
           </button>
         </div>
 
-        {/* 날짜 범위 필터 */}
         <div className="px-[1.125rem] py-3 border-b border-divider">
           <DateRangeFilter
             startDate={filter.startDate}
@@ -152,10 +132,9 @@ export default function TodoPage() {
           />
         </div>
 
-        {/* 툴바 */}
         <div className="h-toolbar flex items-center justify-between px-[1.125rem]">
           <span className="text-[0.8125rem] text-label">
-            {filteredTodos.length}개 항목
+            {isLoading ? "로딩 중..." : `${filteredTodos.length}개 항목`}
           </span>
           <SearchInput
             value={filter.search}
@@ -163,9 +142,8 @@ export default function TodoPage() {
           />
         </div>
 
-        {/* 투두 목록 */}
         <div className="flex flex-col gap-1.5 px-[1.125rem] py-[0.875rem]">
-          {filteredTodos.length === 0 ? (
+          {!isLoading && filteredTodos.length === 0 ? (
             <p className="text-center text-[0.8125rem] text-muted py-10">
               항목이 없습니다.
             </p>
@@ -175,11 +153,13 @@ export default function TodoPage() {
                 key={todo.id}
                 title={todo.title}
                 isDone={todo.isDone}
-                onToggle={() => handleToggle(todo.id)}
-                tag={todo.tag}
-                dueDate={todo.dueDate}
-                isToday={todo.isToday}
-                isRecurring={todo.isRecurring}
+                onToggle={() => void toggle(todo.id, todo.isDone)}
+                tag={todo.tags[0] ?? undefined}
+                dueDate={
+                  todo.dueAt
+                    ? new Date(todo.dueAt).toLocaleDateString("ko-KR")
+                    : undefined
+                }
               />
             ))
           )}
@@ -189,7 +169,6 @@ export default function TodoPage() {
       <TodoModal />
       <TagManager />
 
-      {/* 플로팅 버튼 */}
       <button
         type="button"
         onClick={openCreate}

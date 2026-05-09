@@ -29,8 +29,7 @@ export default function SignupPage() {
       void navigate(ROUTES.LOGIN);
     } catch (e) {
       setError("root", {
-        message:
-          e instanceof ApiError ? e.message : "회원가입에 실패했습니다.",
+        message: e instanceof ApiError ? e.message : "회원가입에 실패했습니다.",
       });
     }
   });
