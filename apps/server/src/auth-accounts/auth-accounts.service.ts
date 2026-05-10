@@ -13,7 +13,6 @@ import { User } from '@/users/entities/user.entity';
 import {
   SignupRequestDto,
   LoginRequestDto,
-  LoginResponseDto,
   ResetPasswordDto,
 } from './dtos/index';
 import { AuthAccount, AuthProvider } from './entities/auth-account.entity';
@@ -59,7 +58,7 @@ export class AuthAccountsService {
     return savedUser;
   }
 
-  async login(dto: LoginRequestDto): Promise<LoginResponseDto> {
+  async login(dto: LoginRequestDto): Promise<string> {
     const account = await this.authAccountRepository.findOne({
       where: {
         authProvider: AuthProvider.GENERAL,
@@ -84,7 +83,7 @@ export class AuthAccountsService {
     const payload = { sub: user.userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    return LoginResponseDto.fromEntity(accessToken);
+    return accessToken;
   }
 
   async resetPassword(userId: number, dto: ResetPasswordDto): Promise<void> {

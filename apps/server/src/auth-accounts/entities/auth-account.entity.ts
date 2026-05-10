@@ -7,7 +7,6 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
-import { MinLength } from 'class-validator';
 
 export enum AuthProvider {
   GOOGLE = 'google',

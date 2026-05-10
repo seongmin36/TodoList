@@ -5,10 +5,11 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthAccountsService } from './auth-accounts.service';
 import {
-  LoginResponseDto,
   SignUpResponseDto,
   SignupRequestDto,
   LoginRequestDto,
@@ -30,8 +31,35 @@ export class AuthAccountsController {
 
   @Public()
   @Post('login')
-  login(@Body() dto: LoginRequestDto): Promise<LoginResponseDto> {
-    return this.authAccountsService.login(dto);
+  @HttpCode(HttpStatus.OK)
+  async login(
+    @Body() dto: LoginRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ ok: true }> {
+    const accessToken = await this.authAccountsService.login(dto);
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24, // 하루
+    });
+
+    return { ok: true };
+  }
+
+  @Public()
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response): { ok: true } {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    return { ok: true };
   }
 
   @Patch('password')
