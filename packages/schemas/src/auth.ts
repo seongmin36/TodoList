@@ -23,6 +23,12 @@ export const signupFormSchema = signupSchema
     path: ["passwordConfirm"],
   });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "현재 비밀번호를 입력해주세요"),
+  newPassword: z.string().min(8, "새 비밀번호는 8자 이상이어야 합니다"),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type SignupFormInput = z.infer<typeof signupFormSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

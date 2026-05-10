@@ -2,8 +2,7 @@ import type { LoginInput, SignupInput } from "@repo/schemas";
 import { apiClient } from "./client";
 
 export interface LoginResponse {
-  accessToken: string;
-  tokenType: string;
+  ok: true;
 }
 
 export interface SignupResponse {

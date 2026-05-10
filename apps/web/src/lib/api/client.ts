@@ -13,17 +13,9 @@ export class ApiError extends Error {
 
 export const apiClient = axios.create({
   baseURL:
-    (import.meta.env.VITE_API_URL as string | undefined) ??
-    "http://localhost:3000/api/v1",
+    (import.meta.env.VITE_API_URL as string | undefined) ?? "/api/v1",
   headers: { "Content-Type": "application/json" },
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+  withCredentials: true,
 });
 
 apiClient.interceptors.response.use(
@@ -34,7 +26,6 @@ apiClient.interceptors.response.use(
     const status = error.response?.status ?? 0;
 
     if (status === 401 && !window.location.pathname.startsWith("/login")) {
-      localStorage.removeItem("accessToken");
       window.location.href = "/login";
     }
 

@@ -14,7 +14,7 @@ import GoogleIcon from "@/assets/logo/google.svg?react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const setToken = useAuthStore((s) => s.setToken);
+  const setLoggedIn = useAuthStore((s) => s.setLoggedIn);
 
   const {
     register,
@@ -27,8 +27,8 @@ export default function LoginPage() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const { accessToken } = await authApi.login(data);
-      setToken(accessToken);
+      await authApi.login(data);
+      setLoggedIn(true);
       void navigate(ROUTES.TODOS);
     } catch (e) {
       setError("root", {
