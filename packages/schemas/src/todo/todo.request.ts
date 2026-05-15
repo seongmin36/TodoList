@@ -13,7 +13,7 @@ export const recurrenceTypeEnum = z.nativeEnum(RecurrenceType);
 export const createTodoSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(500).optional(),
-  dueAt: z.string().optional(),
+  dueAt: z.string().datetime({ offset: true }).optional(),
 });
 
 export const updateTodoSchema = createTodoSchema.partial().extend({
@@ -36,8 +36,8 @@ export const getTodosQuerySchema = z.object({
 
 export const updateRecurrenceSchema = z.object({
   recurrenceType: recurrenceTypeEnum.default(RecurrenceType.NONE).optional(),
-  recurrenceStartAt: z.string().optional(),
-  recurrenceEndAt: z.string().optional(),
+  recurrenceStartAt: z.string().datetime({ offset: true }).optional(),
+  recurrenceEndAt: z.string().datetime({ offset: true }).optional(),
 });
 
 export const updateTodoTagsSchema = z.object({

@@ -14,13 +14,5 @@ export const signupSchema = z.object({
   password: z.string().min(8, "비밀번호는 8자 이상이어야 합니다"),
 });
 
-export const signupFormSchema = signupSchema
-  .extend({ passwordConfirm: z.string() })
-  .refine((data) => data.password === data.passwordConfirm, {
-    message: "비밀번호가 일치하지 않습니다",
-    path: ["passwordConfirm"],
-  });
-
 export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
-export type SignupFormInput = z.infer<typeof signupFormSchema>;

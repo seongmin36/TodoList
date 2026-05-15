@@ -1,6 +1,8 @@
+const DEFAULT_TAG_COLOR = "#888888";
+
 interface TodoTagProps {
   name: string;
-  color: string; // hex e.g. "#4a90d9"
+  color: string | null;
 }
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -11,13 +13,14 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 export function TodoTag({ name, color }: TodoTagProps) {
+  const resolvedColor = color ?? DEFAULT_TAG_COLOR;
   return (
     <span
       className="inline-flex h-tag items-center px-[0.4375rem] border-[1.5px] rounded-[0.625rem] text-[0.6875rem] leading-[1.03125rem] shrink-0 whitespace-nowrap"
       style={{
-        color,
-        borderColor: color,
-        backgroundColor: hexToRgba(color, 0.13),
+        color: resolvedColor,
+        borderColor: resolvedColor,
+        backgroundColor: hexToRgba(resolvedColor, 0.13),
       }}
     >
       {name}

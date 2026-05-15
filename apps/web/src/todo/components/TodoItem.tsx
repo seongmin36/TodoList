@@ -4,7 +4,7 @@ interface TodoItemProps {
   title: string;
   isDone: boolean;
   onToggle?: () => void;
-  tag?: { name: string; color: string };
+  tag?: { name: string; color: string | null };
   dueDate?: string | null;
   isToday?: boolean;
   isRecurring?: boolean;

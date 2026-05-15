@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { signupFormSchema, type SignupFormInput } from "@repo/schemas";
+import { signupFormSchema, type SignupFormInput } from "@/auth/schemas/auth.form";
 import { AuthTabSwitch } from "@/auth/components/AuthTabSwitch";
 import { Button } from "@/shared/components/Button";
 import { Divider } from "@/shared/components/Divider";
