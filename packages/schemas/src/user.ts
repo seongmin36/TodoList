@@ -19,6 +19,16 @@ export const changePasswordFormSchema = changePasswordSchema
     path: ["newPasswordConfirm"],
   });
 
+export const userProfileSchema = z.object({
+  userId: z.number().int().positive(),
+  name: z.string(),
+  profileImage: z.string().nullable(),
+  isActive: z.boolean(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type ChangePasswordFormInput = z.infer<typeof changePasswordFormSchema>;
+export type UserProfile = z.infer<typeof userProfileSchema>;

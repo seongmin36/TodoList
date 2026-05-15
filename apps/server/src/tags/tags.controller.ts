@@ -1,12 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TagsService } from './tags.service';
-import { JwtAuthGuard } from '@/auth-accounts/guards/jwt-auth.guard';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
 import { CreateTagDto, TagResponseDto } from './dto';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('tags')
+@ApiCookieAuth('access_token')
 @Controller('tags')
-@UseGuards(JwtAuthGuard)
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 

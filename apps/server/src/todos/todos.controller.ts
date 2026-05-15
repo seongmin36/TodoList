@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
   HttpCode,
   HttpStatus,
   Query,
@@ -26,9 +25,10 @@ import {
 } from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
 import { User } from '@/users/entities/user.entity';
-import { JwtAuthGuard } from '@/auth-accounts/guards/jwt-auth.guard';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtAuthGuard)
+@ApiTags('todos')
+@ApiCookieAuth('access_token')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}

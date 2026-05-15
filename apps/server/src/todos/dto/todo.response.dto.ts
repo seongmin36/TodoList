@@ -1,17 +1,14 @@
+import { createZodDto } from 'nestjs-zod';
+import {
+  todoResponseSchema,
+  todoRecurrenceResponseSchema,
+} from '@repo/schemas';
 import { TagResponseDto } from '@/tags/dto';
-import { RecurrenceType, Todo } from '../entities/todo.entity';
+import { Todo } from '../entities/todo.entity';
 
-export class TodoResponseDto {
-  id: number;
-  title: string;
-  description: string | null;
-  isDone: boolean;
-  dueAt: Date | null;
-  tags: TagResponseDto[];
-  createdAt: Date;
-  updatedAt: Date;
-
+export class TodoResponseDto extends createZodDto(todoResponseSchema) {
   constructor(partial: Partial<TodoResponseDto>) {
+    super();
     Object.assign(this, partial);
   }
 
@@ -33,15 +30,11 @@ export class TodoResponseDto {
   }
 }
 
-export class TodoRecurrenceResponseDto {
-  id: number;
-  title: string;
-  dueAt: Date | null;
-  recurrenceType: RecurrenceType;
-  recurrenceStartAt: Date | null;
-  recurrenceEndAt: Date | null;
-
+export class TodoRecurrenceResponseDto extends createZodDto(
+  todoRecurrenceResponseSchema,
+) {
   constructor(partial: Partial<TodoRecurrenceResponseDto>) {
+    super();
     Object.assign(this, partial);
   }
 

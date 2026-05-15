@@ -1,14 +1,10 @@
+import { createZodDto } from 'nestjs-zod';
+import { userProfileSchema } from '@repo/schemas';
 import { User } from '../entities/user.entity';
 
-export class UserProfileDto {
-  userId: number;
-  name: string;
-  profileImage: string | null;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-
+export class UserProfileDto extends createZodDto(userProfileSchema) {
   constructor(partial: Partial<UserProfileDto>) {
+    super();
     Object.assign(this, partial);
   }
 

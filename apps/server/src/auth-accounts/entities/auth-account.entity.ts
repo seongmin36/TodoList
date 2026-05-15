@@ -35,7 +35,6 @@ export class AuthAccount {
     length: 255,
     nullable: true,
   })
-  @MinLength(8)
   passwordHash: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })

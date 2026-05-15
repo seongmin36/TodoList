@@ -1,13 +1,10 @@
+import { createZodDto } from 'nestjs-zod';
+import { tagResponseSchema } from '@repo/schemas';
 import { Tag } from '../entities/tag.entity';
 
-export class TagResponseDto {
-  id: number;
-  name: string;
-  color: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-
+export class TagResponseDto extends createZodDto(tagResponseSchema) {
   constructor(partial: Partial<TagResponseDto>) {
+    super();
     Object.assign(this, partial);
   }
 

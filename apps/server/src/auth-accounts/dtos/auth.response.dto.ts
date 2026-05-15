@@ -1,10 +1,10 @@
+import { createZodDto } from 'nestjs-zod';
+import { signUpResponseSchema } from '@repo/schemas';
 import { User } from '@/users/entities/user.entity';
 
-export class SignUpResponseDto {
-  id: number;
-  name: string;
-
+export class SignUpResponseDto extends createZodDto(signUpResponseSchema) {
   constructor(partial: Partial<SignUpResponseDto>) {
+    super();
     Object.assign(this, partial);
   }
 
@@ -12,25 +12,6 @@ export class SignUpResponseDto {
     return new SignUpResponseDto({
       id: user.userId,
       name: user.name,
-    });
-  }
-}
-
-export class LoginResponseDto {
-  accessToken: string;
-  tokenType: string;
-
-  constructor(partial: Partial<LoginResponseDto>) {
-    Object.assign(this, partial);
-  }
-
-  static fromEntity(
-    accessToken: string,
-    tokenType: string = 'Bearer',
-  ): LoginResponseDto {
-    return new LoginResponseDto({
-      accessToken,
-      tokenType,
     });
   }
 }
