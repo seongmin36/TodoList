@@ -9,7 +9,7 @@ export interface Tag {
 interface TagState {
   tags: Tag[];
   setTags: (tags: Tag[]) => void;
-  addTag: (tag: Tag) => void;
+  addTag: (tag: Omit<Tag, "id">) => void;
   updateTag: (id: number, data: Partial<Omit<Tag, "id">>) => void;
   deleteTag: (id: number) => void;
 }
@@ -17,7 +17,10 @@ interface TagState {
 export const useTagStore = create<TagState>((set) => ({
   tags: [],
   setTags: (tags) => set({ tags }),
-  addTag: (tag) => set((state) => ({ tags: [...state.tags, tag] })),
+  addTag: (tag) =>
+    set((state) => ({
+      tags: [...state.tags, { ...tag, id: Date.now() }],
+    })),
   updateTag: (id, data) =>
     set((state) => ({
       tags: state.tags.map((t) => (t.id === id ? { ...t, ...data } : t)),

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useTagManagerStore } from "@/todo/stores/tagManagerStore";
 import { useTagStore, type Tag } from "@/todo/stores/tagStore";
 
+const DEFAULT_TAG_COLOR = "#888888";
+
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -12,7 +14,7 @@ function hexToRgba(hex: string, alpha: number): string {
 interface EditingState {
   id: number;
   name: string;
-  color: string;
+  color: string | null;
 }
 
 export function TagManager() {
@@ -86,7 +88,7 @@ export function TagManager() {
                   />
                   <input
                     type="color"
-                    value={editing.color}
+                    value={editing.color ?? DEFAULT_TAG_COLOR}
                     onChange={(e) =>
                       setEditing((prev) =>
                         prev ? { ...prev, color: e.target.value } : prev
@@ -119,8 +121,8 @@ export function TagManager() {
                   <div
                     className="size-3.5 shrink-0 rounded-[0.4375rem] border-2"
                     style={{
-                      borderColor: tag.color,
-                      backgroundColor: hexToRgba(tag.color, 0.2),
+                      borderColor: tag.color ?? DEFAULT_TAG_COLOR,
+                      backgroundColor: hexToRgba(tag.color ?? DEFAULT_TAG_COLOR, 0.2),
                     }}
                   />
                   {/* 태그명 */}
