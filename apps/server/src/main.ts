@@ -15,19 +15,18 @@ async function bootstrap() {
     .addCookieAuth('access_token')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-
-  cleanupOpenApiDoc(document);
-
   app.useGlobalPipes(new ZodValidationPipe());
 
-  app.setGlobalPrefix(`api`);
+  app.setGlobalPrefix('api');
 
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  const document = SwaggerModule.createDocument(app, config);
+  cleanupOpenApiDoc(document);
+  SwaggerModule.setup('api/docs', app, document);
 
   app.enableCors({
     origin: ['http://localhost:5173'],
