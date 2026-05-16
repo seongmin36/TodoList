@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UpdateProfileDto } from './dtos';
 
 @Injectable()
@@ -15,16 +19,18 @@ export class UsersService {
     userId: number,
     options: { onlyActive?: boolean } = {},
   ): Promise<User> {
-    const where: FindOptionsWhere<User> = { userId };
-    if (options.onlyActive) where.isActive = true;
-
     const user = await this.userRepository.findOne({
-      where,
+      where: { userId },
     });
 
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
+
+    if (options.onlyActive && !user.isActive) {
+      throw new UnauthorizedException('계정이 비활성화되었습니다.');
+    }
+
     return user;
   }
 

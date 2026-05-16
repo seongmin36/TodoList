@@ -19,6 +19,8 @@ import { AuthAccount, AuthProvider } from './entities/auth-account.entity';
 
 @Injectable()
 export class AuthAccountsService {
+  private static readonly SALT_ROUNDS = 10;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -26,6 +28,22 @@ export class AuthAccountsService {
     private readonly authAccountRepository: Repository<AuthAccount>,
     private readonly jwtService: JwtService,
   ) {}
+
+  private async validatePassword(
+    plainPassword: string,
+    passwordHash: string,
+    errorMessage: string,
+  ): Promise<void> {
+    const isValid = await bcrypt.compare(plainPassword, passwordHash);
+
+    if (!isValid) {
+      throw new UnauthorizedException(errorMessage);
+    }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, AuthAccountsService.SALT_ROUNDS);
+  }
 
   async signUp(dto: SignupRequestDto): Promise<User> {
     const existing = await this.authAccountRepository.findOne({
@@ -38,7 +56,7 @@ export class AuthAccountsService {
       throw new ConflictException('이미 등록된 이메일입니다.');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await this.hashPassword(dto.password);
 
     const user = this.userRepository.create({
       name: dto.name,
@@ -72,10 +90,12 @@ export class AuthAccountsService {
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
 
-    const passwordOk = await bcrypt.compare(dto.password, account.passwordHash);
-    if (!passwordOk) {
-      throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
-    }
+    await this.validatePassword(
+      dto.password,
+      account.passwordHash,
+      '비밀번호가 일치하지 않습니다.',
+    );
+
     if (!user.isActive) {
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
@@ -97,13 +117,11 @@ export class AuthAccountsService {
       throw new NotFoundException('계정 정보를 찾을 수 없습니다.');
     }
 
-    const isMatch = await bcrypt.compare(
+    await this.validatePassword(
       dto.currentPassword,
       user.passwordHash,
+      '현재 비밀번호가 일치하지 않습니다.',
     );
-    if (!isMatch) {
-      throw new UnauthorizedException('현재 비밀번호가 일치하지 않습니다.');
-    }
 
     const isSameAsBefore = await bcrypt.compare(
       dto.newPassword,
@@ -115,10 +133,7 @@ export class AuthAccountsService {
       );
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(dto.newPassword, salt);
-
-    user.passwordHash = hashedPassword;
+    user.passwordHash = await this.hashPassword(dto.newPassword);
     await this.authAccountRepository.save(user);
   }
 }

@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -48,7 +47,7 @@ export class TodosService {
     });
 
     if (!todo) {
-      throw new NotFoundException(`Todo ${id}를 찾을 수 없습니다.`);
+      throw new NotFoundException(`할 일 ${id}를 찾을 수 없습니다.`);
     }
 
     return todo;
@@ -79,8 +78,6 @@ export class TodosService {
     } else if (onlyRecurring === true) {
       where.recurrenceType = Not(RecurrenceType.NONE);
     }
-
-    console.log('받은 쿼리:', query);
 
     return this.todosRepository.find({
       where,
@@ -123,7 +120,9 @@ export class TodosService {
     const todo = await this.findTodoOrFail(id, user.userId);
 
     if (todo.recurrenceType === RecurrenceType.NONE) {
-      throw new BadRequestException(`Recurrence not found for todo ${id}`);
+      throw new BadRequestException(
+        '이 할 일에는 반복 일정이 설정되어 있지 않습니다.',
+      );
     }
 
     return TodoRecurrenceResponseDto.fromEntity(todo);
@@ -194,8 +193,8 @@ export class TodosService {
     }
 
     if (tags.length !== tagIds.length) {
-      throw new ForbiddenException(
-        `존재하지 않는 태그 ID가 포함되어 있습니다.`,
+      throw new BadRequestException(
+        '존재하지 않는 태그 ID가 포함되어 있습니다.',
       );
     }
 
