@@ -4,9 +4,13 @@ import { cleanupOpenApiDoc, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Todo API')
