@@ -36,8 +36,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode: status,
         message,
         data: null,
-        timestamp: new Date().toISOString(),
-        path: request.url,
       });
     }
 
@@ -62,8 +60,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode: status,
       message: errorMessage,
       data: null,
-      timestamp: new Date().toISOString(),
-      path: request.url,
     });
   }
 

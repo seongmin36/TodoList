@@ -25,8 +25,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: '서버 내부 오류가 발생했습니다.',
       data: null,
-      timestamp: new Date().toISOString(),
-      path: request.url,
     });
   }
 }
