@@ -4,8 +4,6 @@ import { cleanupOpenApiDoc, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { Logger } from 'nestjs-pino';
 
@@ -15,8 +13,6 @@ async function bootstrap() {
   });
 
   app.useLogger(app.get(Logger));
-
-  app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 
   app.useGlobalInterceptors(new TransformInterceptor(app.get(Reflector)));
 
