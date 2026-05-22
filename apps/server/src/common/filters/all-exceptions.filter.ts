@@ -2,29 +2,59 @@ import {
   Catch,
   ExceptionFilter,
   ArgumentsHost,
-  Logger,
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { buildHttpErrorBody } from '@/common/http/error-response.helper';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(AllExceptionsFilter.name);
-  catch(exception: unknown, host: ArgumentsHost) {
+  constructor(
+    @InjectPinoLogger(AllExceptionsFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
+
+  catch(exception: unknown, host: ArgumentsHost): void {
+    if (host.getType() !== 'http') {
+      this.logger.error(
+        {
+          context: host.getType(),
+          err:
+            exception instanceof Error
+              ? exception
+              : { message: String(exception) },
+        },
+        '처리되지 않은 예외가 발생했습니다. (비 HTTP)',
+      );
+      return;
+    }
+
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
+    const path = request.originalUrl ?? request.url;
 
     this.logger.error(
-      `[${request.method}] ${request.url} -> Unhandled exception`,
-      exception instanceof Error ? exception.stack : String(exception),
+      {
+        err:
+          exception instanceof Error
+            ? exception
+            : { message: String(exception) },
+        req: {
+          method: request.method,
+          url: path,
+        },
+      },
+      `${request.method} ${path} 처리 중 처리되지 않은 예외`,
     );
 
-    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: '서버 내부 오류가 발생했습니다.',
-      data: null,
-    });
+    const body = buildHttpErrorBody(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      '서버 내부 오류가 발생했습니다.',
+      path,
+    );
+
+    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(body);
   }
 }

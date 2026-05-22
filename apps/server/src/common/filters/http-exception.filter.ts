@@ -4,10 +4,14 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import {
+  buildHttpErrorBody,
+  normalizeExceptionMessage,
+} from '@/common/http/error-response.helper';
 
 interface DatabaseDriverError {
   code?: string;
@@ -16,54 +20,69 @@ interface DatabaseDriverError {
 
 @Catch(HttpException, QueryFailedError)
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  constructor(
+    @InjectPinoLogger(HttpExceptionFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
-  catch(exception: HttpException | QueryFailedError, host: ArgumentsHost) {
+  catch(
+    exception: HttpException | QueryFailedError,
+    host: ArgumentsHost,
+  ): void {
+    if (host.getType() !== 'http') {
+      this.logger.warn(
+        { context: host.getType(), err: exception },
+        'HTTP 필터에서 비 HTTP 컨텍스트 예외 발생',
+      );
+      return;
+    }
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    const path = request.originalUrl ?? request.url;
+    const reqMeta = { method: request.method, url: path };
 
-    // QueryFailed Error 처리
     if (exception instanceof QueryFailedError) {
-      const { status, message } = this.handleQueryFailedError(exception);
-
-      this.logger.warn(
-        `[${request.method}] ${request.url} -> ${status}: ${message}`,
+      const { status, message } = this.handleQueryFailedError(
+        exception,
+        reqMeta,
       );
 
-      return response.status(status).json({
-        success: false,
-        statusCode: status,
-        message,
-        data: null,
-      });
+      response.status(status).json(buildHttpErrorBody(status, message, path));
+      return;
     }
 
-    // HttpException 처리
     const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
-    const errorMessage =
-      typeof exceptionResponse === 'string'
-        ? exceptionResponse
-        : (exceptionResponse as Record<string, string>).message;
+    const errorMessage = normalizeExceptionMessage(exception.getResponse());
 
     if (status >= 500) {
-      this.logger.error(`[${request.method}] ${request.url} -> ${status}`);
+      this.logger.error(
+        { req: reqMeta, status, err: exception },
+        `${reqMeta.method} ${path} 서버 예외 (${status})`,
+      );
     } else {
       this.logger.warn(
-        `[${request.method}] ${request.url} -> ${status}: ${errorMessage}`,
+        {
+          req: reqMeta,
+          status,
+          ...(typeof errorMessage === 'string'
+            ? { message: errorMessage }
+            : { messages: errorMessage }),
+        },
+        `${reqMeta.method} ${path} 클라이언트/비즈니스 오류 (${status})`,
       );
     }
 
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: errorMessage,
-      data: null,
-    });
+    response
+      .status(status)
+      .json(buildHttpErrorBody(status, errorMessage, path));
   }
 
-  private handleQueryFailedError(error: QueryFailedError): {
+  private handleQueryFailedError(
+    error: QueryFailedError,
+    reqMeta: { method: string; url: string },
+  ): {
     status: number;
     message: string;
   } {
@@ -71,23 +90,30 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const code = driverError?.code;
 
     switch (code) {
-      case '23505': // 유니크 제약 조건 위반
+      case '23505':
         return {
           status: HttpStatus.CONFLICT,
           message: this.extractUniqueViolationMessage(driverError),
         };
-      case '23503': // 외래 키 위반
+      case '23503':
         return {
           status: HttpStatus.BAD_REQUEST,
           message: '참조하는 데이터가 존재하지 않습니다.',
         };
-      case '23502': // Not null 위반
+      case '23502':
         return {
           status: HttpStatus.BAD_REQUEST,
           message: '필수 입력값이 누락되었습니다.',
         };
-      default: // 500 : 그 외 서버 오류
-        this.logger.error(`DB Error [${code}]: ${error.message}`);
+      default:
+        this.logger.error(
+          {
+            req: reqMeta,
+            dbCode: code,
+            err: error,
+          },
+          '데이터베이스 처리 중 알 수 없는 오류',
+        );
         return {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           message: '데이터베이스 오류가 발생했습니다.',
