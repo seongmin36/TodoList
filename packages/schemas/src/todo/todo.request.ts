@@ -32,29 +32,44 @@ export const updateTodoSchema = createTodoSchema.partial().extend({
   isDone: z.boolean().optional().describe("완료 여부"),
 });
 
-export const getTodosQuerySchema = z.object({
-  isDone: z
-    .string()
-    .transform((v) => v === "true")
-    .optional()
-    .describe("완료 여부 필터 (true | false)"),
-  dueFrom: z
-    .string()
-    .optional()
-    .describe("마감일 시작 범위 (ISO 8601)"),
-  dueTo: z
-    .string()
-    .optional()
-    .describe("마감일 종료 범위 (ISO 8601)"),
-  recurrenceType: recurrenceTypeEnum
-    .optional()
-    .describe("반복 유형 필터 (none | daily | weekly | monthly | yearly)"),
-  onlyRecurring: z
-    .string()
-    .transform((v) => v === "true")
-    .optional()
-    .describe("반복 할 일만 조회 (true | false)"),
-});
+export const getTodosQuerySchema = z
+  .object({
+    isDone: z
+      .string()
+      .transform((v) => v === "true")
+      .optional()
+      .describe("완료 여부 필터 (true | false)"),
+    dueFrom: z
+      .string()
+      .datetime({ offset: true })
+      .optional()
+      .describe("마감일 시작 범위 (ISO 8601)"),
+    dueTo: z
+      .string()
+      .datetime({ offset: true })
+      .optional()
+      .describe("마감일 종료 범위 (ISO 8601)"),
+    recurrenceType: recurrenceTypeEnum
+      .optional()
+      .describe("반복 유형 필터 (none | daily | weekly | monthly | yearly)"),
+    onlyRecurring: z
+      .string()
+      .transform((v) => v === "true")
+      .optional()
+      .describe("반복 할 일만 조회 (true | false)"),
+  })
+  .refine(
+    (data) => {
+      if (data.dueFrom && data.dueTo) {
+        return new Date(data.dueFrom) <= new Date(data.dueTo);
+      }
+      return true;
+    },
+    {
+      message: "dueFrom은 dueTo보다 이전이어야 합니다.",
+      path: ["dueFrom"],
+    },
+  );
 
 export const updateRecurrenceSchema = z.object({
   recurrenceType: recurrenceTypeEnum
@@ -74,9 +89,7 @@ export const updateRecurrenceSchema = z.object({
 });
 
 export const updateTodoTagsSchema = z.object({
-  tagIds: z
-    .array(z.number())
-    .describe("적용할 태그 ID 배열 (예: [1, 2, 3])"),
+  tagIds: z.array(z.number()).describe("적용할 태그 ID 배열 (예: [1, 2, 3])"),
 });
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
