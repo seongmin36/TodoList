@@ -25,7 +25,7 @@ import {
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 import { Tag } from '@/tags/entities/tag.entity';
-import { Logger } from 'nestjs-pino';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TodosService {
@@ -34,7 +34,8 @@ export class TodosService {
     private readonly todosRepository: Repository<Todo>,
     @InjectRepository(Tag)
     private readonly tagsRepository: Repository<Tag>,
-    private readonly logger: Logger,
+    @InjectPinoLogger(TodosService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   private async findTodoOrFail(
@@ -42,8 +43,6 @@ export class TodosService {
     userId: number,
     options: { withDeleted?: boolean } = {},
   ): Promise<Todo> {
-    this.logger.log({ userId, action: 'findTodoOrFail' }, '투두 단건 조회');
-
     const todo = await this.todosRepository.findOne({
       where: { id, user: { userId: userId } },
       relations: ['tags'],
@@ -51,6 +50,7 @@ export class TodosService {
     });
 
     if (!todo) {
+      this.logger.warn({ todoId: id, userId }, '할 일을 찾을 수 없음');
       throw new NotFoundException(`할 일 ${id}를 찾을 수 없습니다.`);
     }
 
@@ -62,6 +62,7 @@ export class TodosService {
 
     const where: FindOptionsWhere<Todo> = {
       user: { userId: user.userId },
+      deletedAt: IsNull(),
     };
 
     if (isDone !== undefined) {
@@ -81,21 +82,6 @@ export class TodosService {
     } else if (onlyRecurring === true) {
       where.recurrenceType = Not(RecurrenceType.NONE);
     }
-
-    this.logger.log(
-      {
-        userId: user.userId,
-        action: 'findAll',
-        filters: {
-          isDone,
-          dueFrom,
-          dueTo,
-          recurrenceType,
-          onlyRecurring,
-        },
-      },
-      '투두 목록 조회',
-    );
 
     return this.todosRepository.find({
       where,
@@ -137,6 +123,10 @@ export class TodosService {
     const todo = await this.findTodoOrFail(id, user.userId);
 
     if (todo.recurrenceType === RecurrenceType.NONE) {
+      this.logger.warn(
+        { todoId: id },
+        '반복 설정이 없는 할 일에 반복 조회 시도',
+      );
       throw new BadRequestException(
         '이 할 일에는 반복 일정이 설정되어 있지 않습니다.',
       );
@@ -151,7 +141,12 @@ export class TodosService {
       isDone: false,
       user,
     });
-    return this.todosRepository.save(todo);
+    const saved = await this.todosRepository.save(todo);
+    this.logger.debug(
+      { todoId: saved.id, userId: user.userId },
+      '할 일 생성 완료',
+    );
+    return saved;
   }
 
   async update(
@@ -170,7 +165,9 @@ export class TodosService {
     }
     if (dueAt !== undefined) todo.dueAt = new Date(dueAt);
 
-    return this.todosRepository.save(todo);
+    const saved = await this.todosRepository.save(todo);
+    this.logger.debug({ todoId: id }, '할 일 수정 완료');
+    return saved;
   }
 
   async updateRecurrence(
@@ -187,7 +184,12 @@ export class TodosService {
       todo.recurrenceEndAt = null;
     }
 
-    return this.todosRepository.save(todo);
+    const saved = await this.todosRepository.save(todo);
+    this.logger.debug(
+      { todoId: id, recurrenceType: dto.recurrenceType },
+      '반복 설정 수정 완료',
+    );
+    return saved;
   }
 
   async updateTags(
@@ -210,18 +212,28 @@ export class TodosService {
     }
 
     if (tags.length !== tagIds.length) {
+      this.logger.warn(
+        { todoId: id, requestedTagIds: tagIds },
+        '존재하지 않는 태그 ID 포함',
+      );
       throw new BadRequestException(
         '존재하지 않는 태그 ID가 포함되어 있습니다.',
       );
     }
 
     todo.tags = tags;
-    return this.todosRepository.save(todo);
+    const saved = await this.todosRepository.save(todo);
+    this.logger.debug(
+      { todoId: id, tagCount: tags.length },
+      '할 일 태그 수정 완료',
+    );
+    return saved;
   }
 
   async remove(id: number, user: User): Promise<void> {
     await this.findTodoOrFail(id, user.userId);
     await this.todosRepository.softDelete({ id });
+    this.logger.debug({ todoId: id }, '할 일 삭제 완료');
   }
 
   async restore(id: number, user: User): Promise<Todo> {
@@ -229,10 +241,12 @@ export class TodosService {
       withDeleted: true,
     });
     if (!todo.deletedAt) {
+      this.logger.warn({ todoId: id }, '이미 복원된 할 일 복원 시도');
       throw new BadRequestException(`이미 복원된 상태입니다.`);
     }
 
     await this.todosRepository.restore(id);
+    this.logger.debug({ todoId: id }, '할 일 복원 완료');
 
     todo.deletedAt = null;
     return todo;
