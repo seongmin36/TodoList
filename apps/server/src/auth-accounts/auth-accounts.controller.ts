@@ -24,8 +24,10 @@ import {
 } from './dtos/index';
 import { Public } from '@/common/decorators/public.decorator';
 import { GetUser } from '@/common/decorators/user.decorator';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
 @ApiTags('auth')
+@ResponseMessage('인증 요청이 처리되었습니다.')
 @Controller('auth')
 export class AuthAccountsController {
   constructor(private readonly authAccountsService: AuthAccountsService) {}
@@ -41,6 +43,7 @@ export class AuthAccountsController {
     type: SignUpResponseDto,
     schema: { example: { id: 1, name: '홍길동' } },
   })
+  @ResponseMessage('회원가입이 완료되었습니다.')
   async signUp(@Body() dto: SignupRequestDto): Promise<SignUpResponseDto> {
     const user = await this.authAccountsService.signUp(dto);
     return SignUpResponseDto.fromEntity(user);
@@ -58,6 +61,7 @@ export class AuthAccountsController {
     description: '로그인 성공. Set-Cookie 헤더로 access_token이 설정됩니다.',
     schema: { example: { ok: true } },
   })
+  @ResponseMessage('로그인되었습니다.')
   async login(
     @Body() dto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
@@ -85,6 +89,7 @@ export class AuthAccountsController {
     description: '로그아웃 성공',
     schema: { example: { ok: true } },
   })
+  @ResponseMessage('로그아웃되었습니다.')
   logout(@Res({ passthrough: true }) res: Response): { ok: true } {
     res.clearCookie('access_token', {
       httpOnly: true,
@@ -104,6 +109,7 @@ export class AuthAccountsController {
     description: '현재 비밀번호 확인 후 새 비밀번호로 변경합니다.',
   })
   @ApiOkResponse({ description: '비밀번호 변경 성공' })
+  @ResponseMessage('비밀번호가 변경되었습니다.')
   async resetPassword(
     @GetUser('userId') userId: number,
     @Body() dto: ResetPasswordDto,

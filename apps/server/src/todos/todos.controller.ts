@@ -24,6 +24,7 @@ import {
   TodoResponseDto,
 } from './dto/todo.response.dto';
 import { GetUser } from '@/common/decorators/user.decorator';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { User } from '@/users/entities/user.entity';
 import {
   ApiCookieAuth,
@@ -37,6 +38,7 @@ import {
 
 @ApiTags('todos')
 @ApiCookieAuth('access_token')
+@ResponseMessage('할 일 요청이 성공했습니다.')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
@@ -99,6 +101,7 @@ export class TodosController {
       ],
     },
   })
+  @ResponseMessage('할 일 목록을 조회했습니다.')
   async findAll(
     @GetUser() user: User,
     @Query() query: GetTodosRequestDto,
@@ -133,6 +136,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('할 일을 조회했습니다.')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
@@ -165,6 +169,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('반복 설정을 조회했습니다.')
   async getRecurrence(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
@@ -194,6 +199,7 @@ export class TodosController {
       ],
     },
   })
+  @ResponseMessage('오늘 반복 할 일을 조회했습니다.')
   async getTodayRecurrences(
     @GetUser() user: User,
   ): Promise<TodoRecurrenceResponseDto[]> {
@@ -222,6 +228,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('할 일이 생성되었습니다.')
   async create(
     @GetUser() user: User,
     @Body() createTodoDto: CreateTodoDto,
@@ -256,6 +263,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('할 일이 수정되었습니다.')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTodoDto: UpdateTodoDto,
@@ -291,6 +299,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('할 일이 복원되었습니다.')
   async restore(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
@@ -323,6 +332,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('반복 설정이 수정되었습니다.')
   async updateRecurrence(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
@@ -365,6 +375,7 @@ export class TodosController {
       },
     },
   })
+  @ResponseMessage('할 일 태그가 수정되었습니다.')
   async updateTags(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
@@ -389,6 +400,7 @@ export class TodosController {
     description: '할 일 ID',
     example: 1,
   })
+  @ResponseMessage('할 일이 삭제되었습니다.')
   async remove(
     @GetUser() user: User,
     @Param('id', ParseIntPipe) id: number,

@@ -1,5 +1,5 @@
 import { VersioningType } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { cleanupOpenApiDoc, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
@@ -13,7 +13,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new TransformInterceptor(app.get(Reflector)));
 
   const config = new DocumentBuilder()
     .setTitle('Todo API')

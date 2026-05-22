@@ -8,11 +8,13 @@ import {
 } from '@nestjs/swagger';
 import { TagsService } from './tags.service';
 import { GetUser } from '@/common/decorators/user.decorator';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { User } from '@/users/entities/user.entity';
 import { CreateTagDto, TagResponseDto } from './dto';
 
 @ApiTags('tags')
 @ApiCookieAuth('access_token')
+@ResponseMessage('태그 요청이 성공했습니다.')
 @Controller('tags')
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
@@ -45,6 +47,7 @@ export class TagsController {
       ],
     },
   })
+  @ResponseMessage('태그 목록을 조회했습니다.')
   async findAll(@GetUser() user: User): Promise<TagResponseDto[]> {
     const tags = await this.tagsService.findAll(user);
     return TagResponseDto.fromEntities(tags);
@@ -68,6 +71,7 @@ export class TagsController {
       },
     },
   })
+  @ResponseMessage('태그가 생성되었습니다.')
   async create(
     @GetUser() user: User,
     @Body() createTagDto: CreateTagDto,

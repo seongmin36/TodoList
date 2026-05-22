@@ -17,10 +17,12 @@ import {
 import { UsersService } from './users.service';
 import { UpdateProfileDto, UserProfileDto } from './dtos';
 import { GetUser } from '@/common/decorators/user.decorator';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { User } from './entities/user.entity';
 
 @ApiTags('users')
 @ApiCookieAuth('access_token')
+@ResponseMessage('회원 요청이 성공했습니다.')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -44,6 +46,7 @@ export class UsersController {
       },
     },
   })
+  @ResponseMessage('내 정보를 조회했습니다.')
   getMe(@GetUser() user: User): UserProfileDto {
     return UserProfileDto.fromEntity(user);
   }
@@ -57,6 +60,7 @@ export class UsersController {
     description: '프로필 수정 성공',
     type: UserProfileDto,
   })
+  @ResponseMessage('프로필이 수정되었습니다.')
   updateProfile(
     @GetUser() user: User,
     @Body() updateProfileDto: UpdateProfileDto,
@@ -71,6 +75,7 @@ export class UsersController {
     description: '계정과 관련된 모든 데이터를 삭제합니다.',
   })
   @ApiNoContentResponse({ description: '회원 탈퇴 성공' })
+  @ResponseMessage('회원 탈퇴가 완료되었습니다.')
   async remove(@GetUser() user: User): Promise<void> {
     await this.usersService.deleteMe(user.userId);
   }
