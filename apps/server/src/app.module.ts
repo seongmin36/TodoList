@@ -11,6 +11,9 @@ import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './configs/jwt.config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth-accounts/guards/jwt-auth.guard';
+import { LoggerModule } from 'nestjs-pino';
+import { IncomingMessage } from 'http';
+import { ServerResponse } from 'http';
 
 @Module({
   imports: [
@@ -18,6 +21,37 @@ import { JwtAuthGuard } from './auth-accounts/guards/jwt-auth.guard';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
       load: [jwtConfig],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+                options: {
+                  colorize: true,
+                  singleLine: true,
+                  translateTime: 'SYS:HH:MM:ss.l',
+                  ignore: 'pid,hostname',
+                },
+              }
+            : undefined,
+        level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+        // 로그에서 제외할 경로 (헬스체크 등)
+        autoLogging: {
+          ignore: (req) => req.url === '/health',
+        },
+        // 응답에서 민감 정보 제거
+        redact: ['req.headers.authorization', 'req.headers.cookie'],
+        serializers: {
+          req(req: IncomingMessage & { id?: string }) {
+            return { method: req.method, url: req.url, id: req.id };
+          },
+          res(res: ServerResponse) {
+            return { statusCode: res.statusCode };
+          },
+        },
+      },
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
     UsersModule,

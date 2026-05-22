@@ -7,9 +7,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true, // 부팅 중 로그를 버퍼에 모아뒀다가 Pino 준비되면 한꺼번에 출력
+  });
+
+  app.useLogger(app.get(Logger));
 
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 

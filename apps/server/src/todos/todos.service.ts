@@ -25,6 +25,7 @@ import {
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 import { Tag } from '@/tags/entities/tag.entity';
+import { Logger } from 'nestjs-pino';
 
 @Injectable()
 export class TodosService {
@@ -33,6 +34,7 @@ export class TodosService {
     private readonly todosRepository: Repository<Todo>,
     @InjectRepository(Tag)
     private readonly tagsRepository: Repository<Tag>,
+    private readonly logger: Logger,
   ) {}
 
   private async findTodoOrFail(
@@ -40,6 +42,8 @@ export class TodosService {
     userId: number,
     options: { withDeleted?: boolean } = {},
   ): Promise<Todo> {
+    this.logger.log({ userId, action: 'findTodoOrFail' }, '투두 단건 조회');
+
     const todo = await this.todosRepository.findOne({
       where: { id, user: { userId: userId } },
       relations: ['tags'],
@@ -58,7 +62,6 @@ export class TodosService {
 
     const where: FindOptionsWhere<Todo> = {
       user: { userId: user.userId },
-      deletedAt: IsNull(),
     };
 
     if (isDone !== undefined) {
@@ -78,6 +81,21 @@ export class TodosService {
     } else if (onlyRecurring === true) {
       where.recurrenceType = Not(RecurrenceType.NONE);
     }
+
+    this.logger.log(
+      {
+        userId: user.userId,
+        action: 'findAll',
+        filters: {
+          isDone,
+          dueFrom,
+          dueTo,
+          recurrenceType,
+          onlyRecurring,
+        },
+      },
+      '투두 목록 조회',
+    );
 
     return this.todosRepository.find({
       where,
@@ -99,7 +117,6 @@ export class TodosService {
 
     const baseCondition = {
       user: { userId: user.userId },
-      deletedAt: IsNull(),
       recurrenceType: Not(RecurrenceType.NONE),
       recurrenceStartAt: LessThanOrEqual(todayEnd),
     };

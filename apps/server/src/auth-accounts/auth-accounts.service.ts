@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { User } from '@/users/entities/user.entity';
 import {
   SignupRequestDto,
@@ -27,6 +28,8 @@ export class AuthAccountsService {
     @InjectRepository(AuthAccount)
     private readonly authAccountRepository: Repository<AuthAccount>,
     private readonly jwtService: JwtService,
+    @InjectPinoLogger(AuthAccountsService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   private async validatePassword(
@@ -53,6 +56,10 @@ export class AuthAccountsService {
       },
     });
     if (existing) {
+      this.logger.warn(
+        { email: dto.email },
+        '이미 등록된 이메일로 회원가입 시도',
+      );
       throw new ConflictException('이미 등록된 이메일입니다.');
     }
 
@@ -73,6 +80,7 @@ export class AuthAccountsService {
     });
     await this.authAccountRepository.save(authAccount);
 
+    this.logger.debug({ userId: savedUser.userId }, '회원가입 완료');
     return savedUser;
   }
 
@@ -87,6 +95,10 @@ export class AuthAccountsService {
 
     const user = account?.user;
     if (!account?.passwordHash || !user) {
+      this.logger.warn(
+        { email: dto.email },
+        '존재하지 않는 계정으로 로그인 시도',
+      );
       throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
     }
 
@@ -97,12 +109,14 @@ export class AuthAccountsService {
     );
 
     if (!user.isActive) {
+      this.logger.warn({ userId: user.userId }, '비활성화된 계정 로그인 시도');
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
 
     const payload = { sub: user.userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
+    this.logger.debug({ userId: user.userId }, '로그인 성공');
     return accessToken;
   }
 
@@ -128,6 +142,7 @@ export class AuthAccountsService {
       user.passwordHash,
     );
     if (isSameAsBefore) {
+      this.logger.warn({ userId }, '현재와 동일한 비밀번호로 변경 시도');
       throw new BadRequestException(
         '새 비밀번호는 이전 번호와 다르게 설정해야 합니다.',
       );
@@ -135,5 +150,6 @@ export class AuthAccountsService {
 
     user.passwordHash = await this.hashPassword(dto.newPassword);
     await this.authAccountRepository.save(user);
+    this.logger.debug({ userId }, '비밀번호 변경 완료');
   }
 }

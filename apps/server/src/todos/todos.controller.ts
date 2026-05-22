@@ -110,6 +110,36 @@ export class TodosController {
     return TodoResponseDto.fromEntities(todos);
   }
 
+  @Get('recurring/today')
+  @ApiOperation({
+    summary: '오늘 반복 할 일 조회',
+    description: '오늘 기준 반복 대상인 할 일 목록을 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '오늘 반복 할 일 조회 성공',
+    type: TodoRecurrenceResponseDto,
+    isArray: true,
+    schema: {
+      example: [
+        {
+          id: 1,
+          title: '운동하기',
+          dueAt: '2026-03-30T09:00:00.000Z',
+          recurrenceType: 'daily',
+          recurrenceStartAt: '2026-03-01T00:00:00.000Z',
+          recurrenceEndAt: null,
+        },
+      ],
+    },
+  })
+  @ResponseMessage('오늘 반복 할 일을 조회했습니다.')
+  async getTodayRecurrences(
+    @GetUser() user: User,
+  ): Promise<TodoRecurrenceResponseDto[]> {
+    const todos = await this.todosService.findTodayRecurring(user);
+    return TodoRecurrenceResponseDto.fromEntities(todos);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: '할 일 단건 조회',
@@ -175,36 +205,6 @@ export class TodosController {
     @GetUser() user: User,
   ): Promise<TodoRecurrenceResponseDto> {
     return this.todosService.getRecurrence(id, user);
-  }
-
-  @Get('recurring/today')
-  @ApiOperation({
-    summary: '오늘 반복 할 일 조회',
-    description: '오늘 기준 반복 대상인 할 일 목록을 조회합니다.',
-  })
-  @ApiOkResponse({
-    description: '오늘 반복 할 일 조회 성공',
-    type: TodoRecurrenceResponseDto,
-    isArray: true,
-    schema: {
-      example: [
-        {
-          id: 1,
-          title: '운동하기',
-          dueAt: '2026-03-30T09:00:00.000Z',
-          recurrenceType: 'daily',
-          recurrenceStartAt: '2026-03-01T00:00:00.000Z',
-          recurrenceEndAt: null,
-        },
-      ],
-    },
-  })
-  @ResponseMessage('오늘 반복 할 일을 조회했습니다.')
-  async getTodayRecurrences(
-    @GetUser() user: User,
-  ): Promise<TodoRecurrenceResponseDto[]> {
-    const todos = await this.todosService.findTodayRecurring(user);
-    return TodoRecurrenceResponseDto.fromEntities(todos);
   }
 
   @Post()
