@@ -111,3 +111,42 @@ describe('POST /todos — 유효성 및 XSS 방어 검증', () => {
     expect(res.body).not.toHaveProperty('stack');
   });
 });
+
+describe('POST /todos - CSRF 방어 검증', () => {
+  let app: INestApplication<App>;
+  let authCookie: string;
+
+  beforeAll(async () => {
+    app = await createApp();
+
+    const email = `csrf-${Date.now()}@test.com`;
+    await request(app.getHttpServer()).post('/auth/signup').send({
+      email,
+      name: 'CSRF Target',
+      password: 'Password123!',
+    });
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email, password: 'Password123!' });
+
+    authCookie = (loginRes.headers['set-cookie']?.[0] ?? '').split(';')[0];
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('인증 쿠키가 있어도 위조된 Origin(hacker.com)에서 요청하면 403을 반환한다', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Cookie', authCookie) // 사용자의 로그인 쿠키가 탈 때
+      .set('Origin', 'http://hacker.com') // 공격 발신지는 해커 도메인인 경우
+      .send({
+        title: '해커입니다.',
+        description: 'CSRF 방어선 만드세요.',
+      });
+
+    expect(res.status).toBe(403);
+  });
+});
