@@ -32,9 +32,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
                 target: 'pino-pretty',
                 options: {
                   colorize: true,
-                  singleLine: true,
                   translateTime: 'SYS:HH:MM:ss.l',
-                  ignore: 'pid,hostname',
+                  ignore: 'pid,hostname,req,res,responseTime',
                 },
               }
             : undefined,
@@ -42,6 +41,13 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
         // 로그에서 제외할 경로 (헬스체크 등)
         autoLogging: {
           ignore: (req) => req.url === '/health',
+        },
+        // 로그 자체에 메인 텍스트 스트림을 커스텀 바 형태로 명시
+        customSuccessMessage: (req, res, responseTime) => {
+          return `[HTTP] ${req.method} ${req.url} - ${res.statusCode} (${responseTime}ms)`;
+        },
+        customErrorMessage: (req, res, err) => {
+          return `[HTTP ERROR] ${req.method} ${req.url} - ${res.statusCode} | ${err.message}`;
         },
         // 응답에서 민감 정보 제거
         redact: ['req.headers.authorization', 'req.headers.cookie'],
