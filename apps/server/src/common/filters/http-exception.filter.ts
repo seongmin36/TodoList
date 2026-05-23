@@ -12,6 +12,10 @@ import {
   buildHttpErrorBody,
   normalizeExceptionMessage,
 } from '@/common/http/error-response.helper';
+import {
+  networkFromRequest,
+  userFromRequest,
+} from '@/common/logging/structured-log.helper';
 
 interface DatabaseDriverError {
   code?: string;
@@ -31,8 +35,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
   ): void {
     if (host.getType() !== 'http') {
       this.logger.warn(
-        { context: host.getType(), err: exception },
-        'HTTP 필터에서 비 HTTP 컨텍스트 예외 발생',
+        {
+          context: 'system',
+          action: 'http_filter_wrong_host_type',
+          payload: { hostType: host.getType() },
+          err: exception,
+        },
+        'HTTP 예외 필터가 비 HTTP 컨텍스트에서 호출됨',
       );
       return;
     }
@@ -41,12 +50,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const path = request.originalUrl ?? request.url;
-    const reqMeta = { method: request.method, url: path };
 
     if (exception instanceof QueryFailedError) {
       const { status, message } = this.handleQueryFailedError(
         exception,
-        reqMeta,
+        request,
+        path,
       );
 
       response.status(status).json(buildHttpErrorBody(status, message, path));
@@ -55,22 +64,47 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const status = exception.getStatus();
     const errorMessage = normalizeExceptionMessage(exception.getResponse());
+    const net = networkFromRequest(request);
+    const user = userFromRequest(request);
 
     if (status >= 500) {
       this.logger.error(
-        { req: reqMeta, status, err: exception },
-        `${reqMeta.method} ${path} 서버 예외 (${status})`,
+        {
+          context: 'http',
+          action: 'http_server_error_response',
+          ...(user ? { user } : {}),
+          network: net,
+          payload: {
+            method: request.method,
+            path,
+            statusCode: status,
+            message:
+              typeof errorMessage === 'string'
+                ? errorMessage
+                : { messages: errorMessage },
+          },
+          err: exception,
+        },
+        `${request.method} ${path} 서버 예외 (${status})`,
       );
     } else {
       this.logger.warn(
         {
-          req: reqMeta,
-          status,
-          ...(typeof errorMessage === 'string'
-            ? { message: errorMessage }
-            : { messages: errorMessage }),
+          context: 'http',
+          action: 'http_client_error_response',
+          ...(user ? { user } : {}),
+          network: net,
+          payload: {
+            method: request.method,
+            path,
+            statusCode: status,
+            message:
+              typeof errorMessage === 'string'
+                ? errorMessage
+                : { messages: errorMessage },
+          },
         },
-        `${reqMeta.method} ${path} 클라이언트/비즈니스 오류 (${status})`,
+        `${request.method} ${path} 클라이언트/비즈니스 오류 (${status})`,
       );
     }
 
@@ -81,13 +115,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private handleQueryFailedError(
     error: QueryFailedError,
-    reqMeta: { method: string; url: string },
+    request: Request,
+    path: string,
   ): {
     status: number;
     message: string;
   } {
     const driverError = this.getDriverError(error);
     const code = driverError?.code;
+    const net = networkFromRequest(request);
+    const user = userFromRequest(request);
 
     switch (code) {
       case '23505':
@@ -108,8 +145,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       default:
         this.logger.error(
           {
-            req: reqMeta,
-            dbCode: code,
+            context: 'database',
+            action: 'query_unhandled_error',
+            ...(user ? { user } : {}),
+            network: net,
+            payload: {
+              method: request.method,
+              path,
+              dbCode: code ?? 'unknown',
+            },
             err: error,
           },
           '데이터베이스 처리 중 알 수 없는 오류',

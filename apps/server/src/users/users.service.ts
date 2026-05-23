@@ -8,6 +8,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { UpdateProfileDto } from './dtos';
+import { businessEvent } from '@/common/logging/structured-log.helper';
 
 @Injectable()
 export class UsersService {
@@ -27,12 +28,26 @@ export class UsersService {
     });
 
     if (!user) {
-      this.logger.warn({ userId }, '사용자를 찾을 수 없음');
+      this.logger.warn(
+        {
+          context: 'user',
+          action: 'user_lookup_not_found',
+          payload: { queriedUserId: userId },
+        },
+        '사용자를 찾을 수 없음',
+      );
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
     if (options.onlyActive && !user.isActive) {
-      this.logger.warn({ userId }, '비활성화된 계정 접근 시도');
+      this.logger.warn(
+        {
+          context: 'user',
+          action: 'user_inactive_access_attempt',
+          user: businessEvent(userId),
+        },
+        '비활성화된 계정 접근 시도',
+      );
       throw new UnauthorizedException('계정이 비활성화되었습니다.');
     }
 
@@ -44,7 +59,14 @@ export class UsersService {
 
     Object.assign(user, dto);
     const saved = await this.userRepository.save(user);
-    this.logger.debug({ userId }, '프로필 수정 완료');
+    this.logger.debug(
+      {
+        context: 'user',
+        action: 'profile_update_completed',
+        user: businessEvent(userId),
+      },
+      '프로필 수정 완료',
+    );
     return saved;
   }
 
@@ -54,6 +76,13 @@ export class UsersService {
 
     await this.userRepository.save(user);
     await this.userRepository.softRemove(user);
-    this.logger.debug({ userId }, '회원 탈퇴 완료');
+    this.logger.debug(
+      {
+        context: 'user',
+        action: 'account_withdraw_completed',
+        user: businessEvent(userId),
+      },
+      '회원 탈퇴 완료',
+    );
   }
 }

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { User } from '@/users/entities/user.entity';
 import { CreateTagDto, UpdateTagDto } from './dto';
+import { businessEvent } from '@/common/logging/structured-log.helper';
 
 @Injectable()
 export class TagsService {
@@ -24,7 +25,15 @@ export class TagsService {
       where: { id, user: { userId } },
     });
     if (!tag) {
-      this.logger.warn({ tagId: id, userId }, '태그를 찾을 수 없음');
+      this.logger.warn(
+        {
+          context: 'tag',
+          action: 'tag_lookup_not_found',
+          user: businessEvent(userId),
+          payload: { tagId: id },
+        },
+        '태그를 찾을 수 없음',
+      );
       throw new NotFoundException(`태그 ${id}를 찾을 수 없습니다.`);
     }
     return tag;
@@ -45,7 +54,15 @@ export class TagsService {
       },
     });
     if (duplicate) {
-      this.logger.warn({ userId: user.userId, name: createTagDto.name }, '중복된 태그 이름으로 생성 시도');
+      this.logger.warn(
+        {
+          context: 'tag',
+          action: 'tag_create_conflict_name',
+          user: businessEvent(user.userId),
+          payload: { name: createTagDto.name },
+        },
+        '중복된 태그 이름으로 생성 시도',
+      );
       throw new ConflictException('이미 동일한 이름의 태그가 있습니다.');
     }
 
@@ -54,7 +71,15 @@ export class TagsService {
       user: { userId: user.userId },
     });
     const saved = await this.tagRepository.save(tag);
-    this.logger.debug({ tagId: saved.id, name: saved.name }, '태그 생성 완료');
+    this.logger.debug(
+      {
+        context: 'tag',
+        action: 'tag_create_completed',
+        user: businessEvent(user.userId),
+        payload: { tagId: saved.id, name: saved.name },
+      },
+      '태그 생성 완료',
+    );
     return saved;
   }
 
@@ -73,20 +98,44 @@ export class TagsService {
         },
       });
       if (nameTaken) {
-        this.logger.warn({ userId: user.userId, name: dto.name }, '이미 사용 중인 태그 이름으로 수정 시도');
+        this.logger.warn(
+          {
+            context: 'tag',
+            action: 'tag_update_conflict_name',
+            user: businessEvent(user.userId),
+            payload: { name: dto.name },
+          },
+          '이미 사용 중인 태그 이름으로 수정 시도',
+        );
         throw new ConflictException('이미 동일한 이름의 태그가 있습니다.');
       }
     }
 
     Object.assign(tag, dto);
     const saved = await this.tagRepository.save(tag);
-    this.logger.debug({ tagId: id }, '태그 수정 완료');
+    this.logger.debug(
+      {
+        context: 'tag',
+        action: 'tag_update_completed',
+        user: businessEvent(user.userId),
+        payload: { tagId: id },
+      },
+      '태그 수정 완료',
+    );
     return saved;
   }
 
   async remove(id: number, user: User): Promise<void> {
     const tag = await this.findTagOrFail(id, user.userId);
     await this.tagRepository.remove(tag);
-    this.logger.debug({ tagId: id }, '태그 삭제 완료');
+    this.logger.debug(
+      {
+        context: 'tag',
+        action: 'tag_delete_completed',
+        user: businessEvent(user.userId),
+        payload: { tagId: id },
+      },
+      '태그 삭제 완료',
+    );
   }
 }

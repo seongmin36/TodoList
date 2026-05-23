@@ -26,6 +26,7 @@ import {
 import { User } from '@/users/entities/user.entity';
 import { Tag } from '@/tags/entities/tag.entity';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { businessEvent } from '@/common/logging/structured-log.helper';
 
 @Injectable()
 export class TodosService {
@@ -50,7 +51,15 @@ export class TodosService {
     });
 
     if (!todo) {
-      this.logger.warn({ todoId: id, userId }, '할 일을 찾을 수 없음');
+      this.logger.warn(
+        {
+          context: 'todo',
+          action: 'todo_lookup_not_found',
+          user: businessEvent(userId),
+          payload: { todoId: id },
+        },
+        '할 일을 찾을 수 없음',
+      );
       throw new NotFoundException(`할 일 ${id}를 찾을 수 없습니다.`);
     }
 
@@ -124,7 +133,12 @@ export class TodosService {
 
     if (todo.recurrenceType === RecurrenceType.NONE) {
       this.logger.warn(
-        { todoId: id },
+        {
+          context: 'todo',
+          action: 'todo_recurrence_fetch_invalid',
+          user: businessEvent(user.userId),
+          payload: { todoId: id },
+        },
         '반복 설정이 없는 할 일에 반복 조회 시도',
       );
       throw new BadRequestException(
@@ -143,7 +157,12 @@ export class TodosService {
     });
     const saved = await this.todosRepository.save(todo);
     this.logger.debug(
-      { todoId: saved.id, userId: user.userId },
+      {
+        context: 'todo',
+        action: 'todo_create_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: saved.id },
+      },
       '할 일 생성 완료',
     );
     return saved;
@@ -166,7 +185,15 @@ export class TodosService {
     if (dueAt !== undefined) todo.dueAt = new Date(dueAt);
 
     const saved = await this.todosRepository.save(todo);
-    this.logger.debug({ todoId: id }, '할 일 수정 완료');
+    this.logger.debug(
+      {
+        context: 'todo',
+        action: 'todo_update_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: id },
+      },
+      '할 일 수정 완료',
+    );
     return saved;
   }
 
@@ -186,7 +213,12 @@ export class TodosService {
 
     const saved = await this.todosRepository.save(todo);
     this.logger.debug(
-      { todoId: id, recurrenceType: dto.recurrenceType },
+      {
+        context: 'todo',
+        action: 'todo_recurrence_update_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: id, recurrenceType: dto.recurrenceType },
+      },
       '반복 설정 수정 완료',
     );
     return saved;
@@ -213,7 +245,12 @@ export class TodosService {
 
     if (tags.length !== tagIds.length) {
       this.logger.warn(
-        { todoId: id, requestedTagIds: tagIds },
+        {
+          context: 'todo',
+          action: 'todo_tags_update_invalid_ids',
+          user: businessEvent(user.userId),
+          payload: { todoId: id, requestedTagIds: tagIds },
+        },
         '존재하지 않는 태그 ID 포함',
       );
       throw new BadRequestException(
@@ -224,7 +261,12 @@ export class TodosService {
     todo.tags = tags;
     const saved = await this.todosRepository.save(todo);
     this.logger.debug(
-      { todoId: id, tagCount: tags.length },
+      {
+        context: 'todo',
+        action: 'todo_tags_update_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: id, tagCount: tags.length },
+      },
       '할 일 태그 수정 완료',
     );
     return saved;
@@ -233,7 +275,15 @@ export class TodosService {
   async remove(id: number, user: User): Promise<void> {
     await this.findTodoOrFail(id, user.userId);
     await this.todosRepository.softDelete({ id });
-    this.logger.debug({ todoId: id }, '할 일 삭제 완료');
+    this.logger.debug(
+      {
+        context: 'todo',
+        action: 'todo_soft_delete_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: id },
+      },
+      '할 일 삭제 완료',
+    );
   }
 
   async restore(id: number, user: User): Promise<Todo> {
@@ -241,12 +291,28 @@ export class TodosService {
       withDeleted: true,
     });
     if (!todo.deletedAt) {
-      this.logger.warn({ todoId: id }, '이미 복원된 할 일 복원 시도');
+      this.logger.warn(
+        {
+          context: 'todo',
+          action: 'todo_restore_already_active',
+          user: businessEvent(user.userId),
+          payload: { todoId: id },
+        },
+        '이미 복원된 할 일 복원 시도',
+      );
       throw new BadRequestException(`이미 복원된 상태입니다.`);
     }
 
     await this.todosRepository.restore(id);
-    this.logger.debug({ todoId: id }, '할 일 복원 완료');
+    this.logger.debug(
+      {
+        context: 'todo',
+        action: 'todo_restore_completed',
+        user: businessEvent(user.userId),
+        payload: { todoId: id },
+      },
+      '할 일 복원 완료',
+    );
 
     todo.deletedAt = null;
     return todo;

@@ -7,6 +7,10 @@ import {
 import { Request, Response } from 'express';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { buildHttpErrorBody } from '@/common/http/error-response.helper';
+import {
+  networkFromRequest,
+  userFromRequest,
+} from '@/common/logging/structured-log.helper';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -17,15 +21,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     if (host.getType() !== 'http') {
+      const errObj =
+        exception instanceof Error ? exception : { message: String(exception) };
       this.logger.error(
         {
-          context: host.getType(),
-          err:
-            exception instanceof Error
-              ? exception
-              : { message: String(exception) },
+          context: 'system',
+          action: 'unhandled_exception_non_http',
+          payload: { hostType: host.getType() },
+          err: errObj,
         },
-        '처리되지 않은 예외가 발생했습니다. (비 HTTP)',
+        '처리되지 않은 예외가 발생했습니다. (비 HTTP 컨텍스트)',
       );
       return;
     }
@@ -34,17 +39,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const path = request.originalUrl ?? request.url;
+    const net = networkFromRequest(request);
+    const user = userFromRequest(request);
 
     this.logger.error(
       {
+        context: 'http',
+        action: 'unhandled_exception',
+        ...(user ? { user } : {}),
+        network: net,
+        payload: { method: request.method, path },
         err:
           exception instanceof Error
             ? exception
             : { message: String(exception) },
-        req: {
-          method: request.method,
-          url: path,
-        },
       },
       `${request.method} ${path} 처리 중 처리되지 않은 예외`,
     );
