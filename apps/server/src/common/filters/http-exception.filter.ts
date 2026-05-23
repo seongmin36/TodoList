@@ -16,6 +16,7 @@ import {
   networkFromRequest,
   userFromRequest,
 } from '@/common/logging/structured-log.helper';
+import { ZodValidationException } from 'nestjs-zod';
 
 interface DatabaseDriverError {
   code?: string;
@@ -67,6 +68,25 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const net = networkFromRequest(request);
     const user = userFromRequest(request);
 
+    let validationDetails:
+      | Array<{ field: string; reason: string }>
+      | undefined = undefined;
+    if (exception instanceof ZodValidationException) {
+      const zodError = exception.getZodError();
+
+      if (zodError && Array.isArray(zodError.errors)) {
+        validationDetails = (
+          zodError.errors as Array<{
+            path: Array<string | number>;
+            message: string;
+          }>
+        ).map((e) => ({
+          field: e.path.join('.'),
+          reason: e.message,
+        }));
+      }
+    }
+
     if (status >= 500) {
       this.logger.error(
         {
@@ -102,6 +122,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
               typeof errorMessage === 'string'
                 ? errorMessage
                 : { messages: errorMessage },
+            ...(validationDetails ? { validationDetails } : {}),
           },
         },
         `${request.method} ${path} 클라이언트/비즈니스 오류 (${status})`,
