@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { CsrfGuard } from '@/common/guards/csrf.guard';
 
 async function createApp(): Promise<INestApplication<App>> {
   const moduleRef = await Test.createTestingModule({
@@ -12,6 +13,9 @@ async function createApp(): Promise<INestApplication<App>> {
   }).compile();
 
   const app = moduleRef.createNestApplication();
+
+  app.useGlobalGuards(new CsrfGuard());
+
   app.useGlobalPipes(new ZodValidationPipe());
   app.use(cookieParser());
   await app.init();
@@ -135,6 +139,20 @@ describe('POST /todos - CSRF 방어 검증', () => {
 
   afterAll(async () => {
     await app.close();
+  });
+
+  it('정상적인 Origin이나 안전한 요청 환경에서는 201을 반환하며 성공한다', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Cookie', authCookie)
+      .set('Origin', 'http://localhost:3000')
+      .set('X-Requested-With', 'XMLHttpRequest')
+      .send({
+        title: '정상적인 할 일',
+        description: '내가 직접 쓴 글',
+      });
+
+    expect(res.status).toBe(201);
   });
 
   it('인증 쿠키가 있어도 위조된 Origin(hacker.com)에서 요청하면 403을 반환한다', async () => {
