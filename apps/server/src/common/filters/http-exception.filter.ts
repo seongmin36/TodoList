@@ -17,6 +17,7 @@ import {
   userFromRequest,
 } from '@/common/logging/structured-log.helper';
 import { ZodValidationException } from 'nestjs-zod';
+import { ZodError } from 'zod';
 
 interface DatabaseDriverError {
   code?: string;
@@ -72,7 +73,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       | Array<{ field: string; reason: string }>
       | undefined = undefined;
     if (exception instanceof ZodValidationException) {
-      const zodError = exception.getZodError();
+      const zodError = exception.getZodError() as ZodError | undefined;
 
       if (zodError && Array.isArray(zodError.errors)) {
         validationDetails = (
