@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  postgresql:
+    #docker hub에서 찾은 이미지
+    image: postgres:16.9
+    #컨테이너 실행 시 재시작
+    restart: always
+    container_name: postgres
+    ports:
+      - "15432:5432" #호스트 Port:컨테이너 Port
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test #사용할 패스워드로 설정
+    volumes:
+      #./data (로컬 디렉터리 /data 디렉터리는 자동으로 생성됨) ex /postgresql_16_docker/data
+      # /var/lib/postgresql/data : 컨테이너 내부 Postgresql 'data' 디렉터리
+      - ./data:/var/lib/postgresql/data
