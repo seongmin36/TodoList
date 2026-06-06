@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  withXssCheck,
+  xssSafeIsoDateTimeString,
+  xssSafeBooleanFromQueryString,
+} from "../security/xss.js";
 
 export enum RecurrenceType {
   NONE = "none",
@@ -11,19 +16,13 @@ export enum RecurrenceType {
 export const recurrenceTypeEnum = z.nativeEnum(RecurrenceType);
 
 export const createTodoSchema = z.object({
-  title: z
-    .string()
-    .min(1, "제목을 입력해주세요")
-    .max(200)
-    .describe("할 일 제목 (최대 200자)"),
-  description: z
-    .string()
-    .max(500)
+  title: withXssCheck(
+    z.string().min(1, "제목을 입력해주세요").max(200),
+  ).describe("할 일 제목 (최대 200자)"),
+  description: withXssCheck(z.string().max(500))
     .optional()
     .describe("상세 설명 (선택, 최대 500자)"),
-  dueAt: z
-    .string()
-    .datetime({ offset: true })
+  dueAt: xssSafeIsoDateTimeString()
     .optional()
     .describe("마감일 (ISO 8601, 예: 2025-05-20T09:00:00+09:00)"),
 });
@@ -34,27 +33,19 @@ export const updateTodoSchema = createTodoSchema.partial().extend({
 
 export const getTodosQuerySchema = z
   .object({
-    isDone: z
-      .string()
-      .transform((v) => v === "true")
+    isDone: xssSafeBooleanFromQueryString()
       .optional()
       .describe("완료 여부 필터 (true | false)"),
-    dueFrom: z
-      .string()
-      .datetime({ offset: true })
+    dueFrom: xssSafeIsoDateTimeString()
       .optional()
       .describe("마감일 시작 범위 (ISO 8601)"),
-    dueTo: z
-      .string()
-      .datetime({ offset: true })
+    dueTo: xssSafeIsoDateTimeString()
       .optional()
       .describe("마감일 종료 범위 (ISO 8601)"),
     recurrenceType: recurrenceTypeEnum
       .optional()
       .describe("반복 유형 필터 (none | daily | weekly | monthly | yearly)"),
-    onlyRecurring: z
-      .string()
-      .transform((v) => v === "true")
+    onlyRecurring: xssSafeBooleanFromQueryString()
       .optional()
       .describe("반복 할 일만 조회 (true | false)"),
   })
@@ -76,14 +67,10 @@ export const updateRecurrenceSchema = z.object({
     .default(RecurrenceType.NONE)
     .optional()
     .describe("반복 유형 (기본값: none)"),
-  recurrenceStartAt: z
-    .string()
-    .datetime({ offset: true })
+  recurrenceStartAt: xssSafeIsoDateTimeString()
     .optional()
     .describe("반복 시작일 (ISO 8601, 예: 2025-05-01T00:00:00+09:00)"),
-  recurrenceEndAt: z
-    .string()
-    .datetime({ offset: true })
+  recurrenceEndAt: xssSafeIsoDateTimeString()
     .optional()
     .describe("반복 종료일 (ISO 8601, 예: 2025-12-31T23:59:59+09:00)"),
 });

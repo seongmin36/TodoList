@@ -1,3 +1,4 @@
+export * from "./security/xss.js";
 export * from "./auth/auth.request.js";
 export * from "./auth/auth.response.js";
 export * from "./tag/tag.request.js";

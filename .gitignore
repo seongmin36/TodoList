@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 .omc/
 
 apps/.claude/
+
+# PostgreSQL Docker volume (docker-compose.yml: ./data → /var/lib/postgresql/data)
+/data
