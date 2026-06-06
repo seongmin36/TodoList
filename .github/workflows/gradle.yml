@@ -8,6 +8,7 @@ on:
       - "apps/server/**"
       - "packages/schemas/**"
       - "pnpm-lock.yaml"
+      - ".github/workflows/**"
   # PR 생성/업데이트 시 → CI만 실행 (배포 없음)
   pull_request:
     branches: ["main"]
@@ -15,6 +16,7 @@ on:
       - "apps/server/**"
       - "packages/schemas/**"
       - "pnpm-lock.yaml"
+      - ".github/workflows/**"
   # 수동 배포 트리거 (긴급 재배포 등)
   workflow_dispatch:
 
@@ -196,23 +198,31 @@ jobs:
               DOCKER_BIN="sudo $DOCKER_BIN"
             fi
 
-            # Docker Hub 로그인 및 최신 이미지 Pull
-            echo "${{ secrets.DOCKER_PASSWORD }}" | $DOCKER_BIN login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            $DOCKER_BIN pull ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+            IMAGE="${{ secrets.DOCKER_USERNAME }}/todo-server:latest"
 
-            # 기존 todo-server 컨테이너만 중지 및 삭제
-            # (DB 등 다른 컨테이너는 건드리지 않음)
+            # Docker Hub 로그인 및 ARM64 이미지 Pull (구 amd64 캐시 제거)
+            echo "${{ secrets.DOCKER_PASSWORD }}" | $DOCKER_BIN login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             $DOCKER_BIN stop todo-server || true
             $DOCKER_BIN rm   todo-server || true
+            $DOCKER_BIN rmi  "$IMAGE" || true
+            $DOCKER_BIN pull --platform linux/arm64 "$IMAGE"
+
+            ARCH="$($DOCKER_BIN image inspect --format '{{.Architecture}}' "$IMAGE")"
+            echo "Pulled image architecture: $ARCH"
+            if [ "$ARCH" != "arm64" ]; then
+              echo "ERROR: image is $ARCH, expected arm64. Re-run CI build with platforms: linux/arm64." >&2
+              exit 1
+            fi
 
             # 새 이미지로 컨테이너 실행
             $DOCKER_BIN run -d \
+              --platform linux/arm64 \
               --name todo-server \
               -p 8080:3000 \
               -e TZ=Asia/Seoul \
               --env-file /home/ubuntu/apps/.env \
               --restart unless-stopped \
-              ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+              "$IMAGE"
 
             # 사용하지 않는 구버전 이미지 및 컨테이너 정리
             $DOCKER_BIN image prune -f
