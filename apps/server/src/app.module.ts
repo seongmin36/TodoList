@@ -25,8 +25,9 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     }),
     LoggerModule.forRoot({
       pinoHttp: {
+        // pino-pretty는 devDependency — development에서만 사용 (prod 이미지에 없음)
         transport:
-          process.env.NODE_ENV !== 'production'
+          process.env.NODE_ENV === 'development'
             ? {
                 target: 'pino-pretty',
                 options: {
