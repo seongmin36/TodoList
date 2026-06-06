@@ -1,51 +1,34 @@
 # ── Stage 1: build ──────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
-# pnpm 활성화
-RUN corepack enable
+# bcrypt 등 네이티브 모듈 빌드
+RUN apk add --no-cache python3 make g++
+
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 WORKDIR /app
 
-# workspace 설정 파일 복사
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-
-# 각 패키지의 package.json만 먼저 복사 (레이어 캐시 활용)
-COPY apps/server/package.json ./apps/server/
-COPY packages/schemas/package.json ./packages/schemas/
-
-# 의존성 설치
-RUN pnpm install --frozen-lockfile
-
-# 소스 코드 복사
+# workspace 설정 + 소스 (install 전에 복사해야 workspace symlink가 install 후 덮어쓰이지 않음)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY packages/schemas ./packages/schemas
 COPY apps/server ./apps/server
 
-# 공유 스키마 빌드 → 서버 빌드
-RUN pnpm --filter @repo/schemas build
+RUN pnpm install --frozen-lockfile
+
 RUN pnpm --filter server build
+
+# monorepo prod 의존성을 단일 디렉터리로 추출 (runner에서 pnpm install 재실행 불필요)
+RUN pnpm deploy --filter=server --prod --legacy /prod/server \
+    && cp -r apps/server/dist /prod/server/dist
 
 # ── Stage 2: production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 
-RUN corepack enable
-
 WORKDIR /app
 
-# workspace 설정 파일 복사
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/server/package.json ./apps/server/
-COPY packages/schemas/package.json ./packages/schemas/
-
-# 프로덕션 의존성만 설치
-RUN pnpm install --frozen-lockfile --prod
-
-# 빌드 결과물 복사
-COPY --from=builder /app/apps/server/dist ./apps/server/dist
-COPY --from=builder /app/packages/schemas/dist ./packages/schemas/dist
-
-WORKDIR /app/apps/server
+COPY --from=builder /prod/server ./
 
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]
