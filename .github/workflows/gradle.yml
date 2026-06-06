@@ -164,17 +164,41 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+            set -euo pipefail
+
+            # 비대화형 SSH는 .bashrc를 안 읽어 PATH가 짧을 수 있음
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+
+            resolve_docker() {
+              if command -v docker >/dev/null 2>&1; then
+                echo docker
+              elif [ -x /usr/bin/docker ]; then
+                echo /usr/bin/docker
+              elif [ -x /snap/bin/docker ]; then
+                echo /snap/bin/docker
+              else
+                echo "ERROR: docker CLI not found on remote server." >&2
+                echo "Install: curl -fsSL https://get.docker.com | sudo sh" >&2
+                exit 127
+              fi
+            }
+
+            DOCKER_BIN="$(resolve_docker)"
+            if ! "$DOCKER_BIN" info >/dev/null 2>&1; then
+              DOCKER_BIN="sudo $DOCKER_BIN"
+            fi
+
             # Docker Hub 로그인 및 최신 이미지 Pull
-            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+            echo "${{ secrets.DOCKER_PASSWORD }}" | $DOCKER_BIN login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            $DOCKER_BIN pull ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
 
             # 기존 todo-server 컨테이너만 중지 및 삭제
             # (DB 등 다른 컨테이너는 건드리지 않음)
-            docker stop todo-server || true
-            docker rm   todo-server || true
+            $DOCKER_BIN stop todo-server || true
+            $DOCKER_BIN rm   todo-server || true
 
             # 새 이미지로 컨테이너 실행
-            docker run -d \
+            $DOCKER_BIN run -d \
               --name todo-server \
               -p 8080:3000 \
               -e TZ=Asia/Seoul \
@@ -183,7 +207,7 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
 
             # 사용하지 않는 구버전 이미지 및 컨테이너 정리
-            docker image prune -f
+            $DOCKER_BIN image prune -f
 
             echo "Deploy completed"
 
@@ -195,5 +219,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+            set -euo pipefail
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+
+            if command -v docker >/dev/null 2>&1; then
+              DOCKER_BIN=docker
+            elif [ -x /usr/bin/docker ]; then
+              DOCKER_BIN=/usr/bin/docker
+            else
+              DOCKER_BIN="sudo /snap/bin/docker"
+            fi
+
+            if ! $DOCKER_BIN info >/dev/null 2>&1; then
+              DOCKER_BIN="sudo $DOCKER_BIN"
+            fi
+
             sleep 10
-            docker logs todo-server --tail 50
+            $DOCKER_BIN logs todo-server --tail 50
