@@ -85,7 +85,25 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "module": "commonjs",
+            "moduleResolution": "node",
+            "resolvePackageJsonExports": false,
+            "paths": {
+              "@/*": ["src/*"]
+            },
+            "baseUrl": "."
+          }
+        }
+      ]
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^@repo/schemas$": "<rootDir>/../../../packages/schemas/src/index.ts",
+      "^(\\.{1,2}/.+)\\.js$": "$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
