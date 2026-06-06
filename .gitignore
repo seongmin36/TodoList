@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # oh-my-claudecode
 .omc/
+
+apps/.claude/
