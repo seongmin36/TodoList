@@ -1,0 +1,203 @@
+name: Server CI/CD
+
+on:
+  # main 브랜치 push 시 (PR merge 포함) → CI + CD 실행
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/server/**"
+      - "packages/schemas/**"
+      - "pnpm-lock.yaml"
+  # PR 생성/업데이트 시 → CI만 실행 (배포 없음)
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "apps/server/**"
+      - "packages/schemas/**"
+      - "pnpm-lock.yaml"
+  # 수동 배포 트리거 (긴급 재배포 등)
+  workflow_dispatch:
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════════
+  # JOB 1 — CI: 빌드 및 테스트 검증
+  # PR / push / 수동 실행 모두 항상 실행
+  # ══════════════════════════════════════════════════════════════════════
+  test:
+    name: "CI — Build & Test"
+    runs-on: ubuntu-latest
+
+    services:
+      # E2E 테스트용 PostgreSQL 서비스 컨테이너
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: todo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # 소스 코드 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm 설치
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      # Node.js 설치 + pnpm 스토어 캐시 연동
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      # 의존성 설치 (lockfile 고정, 네트워크 타임아웃 100초)
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --network-timeout 100000
+
+      # 공유 스키마 패키지 빌드 (server가 의존)
+      - name: Build shared schemas
+        run: pnpm --filter @repo/schemas build
+
+      # NestJS 서버 TypeScript 컴파일
+      - name: Build server
+        run: pnpm --filter server build
+
+      # 유닛 테스트
+      - name: Run unit tests
+        run: pnpm --filter server test --passWithNoTests
+
+      # Race Condition 방지 — DB가 실제로 연결 가능한 상태인지 확인
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for postgres..."
+            sleep 1
+          done
+
+      # E2E 테스트
+      - name: Run e2e tests
+        run: pnpm --filter server test:e2e
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: todo_test
+          JWT_SECRET: ci-test-secret
+          JWT_EXPIRES_IN: 1h
+
+  # ══════════════════════════════════════════════════════════════════════
+  # JOB 2 — CD: Docker 빌드 및 원격 서버 배포
+  # push / workflow_dispatch 일 때만 실행 (PR은 배포 안 함)
+  # test 잡이 성공해야만 실행 (needs: test)
+  # ══════════════════════════════════════════════════════════════════════
+  deploy:
+    name: "CD — Docker Build & Deploy"
+    needs: test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      # 소스 코드 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm 설치
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      # Node.js 설치 + pnpm 스토어 캐시 연동
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      # 의존성 설치
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --network-timeout 100000
+
+      # 환경변수 파일 주입
+      # GitHub Secrets의 APPLICATION 값을 apps/server/.env 로 생성
+      - name: Inject .env file
+        run: echo "${{ secrets.APPLICATION }}" > apps/server/.env
+
+      # 공유 스키마 패키지 빌드
+      - name: Build shared schemas
+        run: pnpm --filter @repo/schemas build
+
+      # NestJS 서버 빌드 (Docker 이미지에 포함될 dist/ 생성)
+      - name: Build server
+        run: pnpm --filter server build
+
+      # Docker Hub 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Docker 이미지 빌드 및 Docker Hub 푸시 (latest 태그)
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/server/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+
+      # SSH로 원격 서버 접속 후 배포 실행
+      - name: Deploy to remote server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            # Docker Hub 로그인 및 최신 이미지 Pull
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            docker pull ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+
+            # 기존 todo-server 컨테이너만 중지 및 삭제
+            # (DB 등 다른 컨테이너는 건드리지 않음)
+            docker stop todo-server || true
+            docker rm   todo-server || true
+
+            # 새 이미지로 컨테이너 실행
+            docker run -d \
+              --name todo-server \
+              -p 8080:3000 \
+              -e TZ=Asia/Seoul \
+              --env-file /home/ubuntu/apps/.env \
+              --restart unless-stopped \
+              ${{ secrets.DOCKER_USERNAME }}/todo-server:latest
+
+            # 사용하지 않는 구버전 이미지 및 컨테이너 정리
+            docker image prune -f
+
+            echo "Deploy completed"
+
+      # 배포 후 컨테이너 로그 확인 (정상 구동 여부 확인)
+      - name: Check container logs
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            sleep 10
+            docker logs todo-server --tail 50
