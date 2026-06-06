@@ -61,7 +61,7 @@ jobs:
 
       # 의존성 설치 (lockfile 고정, 네트워크 타임아웃 100초)
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --network-timeout 100000
+        run: pnpm install --config.frozen-lockfile=true --config.network-timeout=100000
 
       # 공유 스키마 패키지 빌드 (server가 의존)
       - name: Build shared schemas
@@ -125,7 +125,7 @@ jobs:
 
       # 의존성 설치
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --network-timeout 100000
+        run: pnpm install --config.frozen-lockfile=true --config.network-timeout=100000
 
       # 환경변수 파일 주입
       # GitHub Secrets의 APPLICATION 값을 apps/server/.env 로 생성
