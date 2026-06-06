@@ -2,7 +2,7 @@
 FROM node:20-alpine AS builder
 
 # pnpm 활성화
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ RUN pnpm --filter server build
 # ── Stage 2: production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable
 
 WORKDIR /app
 

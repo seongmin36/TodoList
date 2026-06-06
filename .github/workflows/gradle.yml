@@ -51,8 +51,6 @@ jobs:
       # pnpm 설치
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       # Node.js 설치 + pnpm 스토어 캐시 연동
       - name: Setup Node.js
@@ -117,8 +115,6 @@ jobs:
       # pnpm 설치
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       # Node.js 설치 + pnpm 스토어 캐시 연동
       - name: Setup Node.js
