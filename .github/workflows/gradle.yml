@@ -225,7 +225,7 @@ jobs:
               --platform linux/arm64 \
               --name todo-server \
               --network todo-network \
-              -p 8080:3000 \
+              -p 80:3000 \
               --env-file /home/ubuntu/apps/.env \
               -e NODE_ENV=production \
               -e TZ=Asia/Seoul \
