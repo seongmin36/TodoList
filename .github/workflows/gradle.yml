@@ -189,7 +189,7 @@ jobs:
                 exit 127
               fi
             }
-
+            # test 용
             DOCKER_BIN="$(resolve_docker)"
             if ! "$DOCKER_BIN" info >/dev/null 2>&1; then
               DOCKER_BIN="sudo $DOCKER_BIN"
