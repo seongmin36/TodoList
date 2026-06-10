@@ -115,7 +115,7 @@ export class AuthAccountsService {
         },
         '존재하지 않는 계정으로 로그인 시도',
       );
-      throw new UnauthorizedException('유효하지 않은 자격 증명입니다.');
+      throw new UnauthorizedException('이메일과 비밀번호를 다시 확인해주세요.');
     }
 
     await this.validatePassword(
